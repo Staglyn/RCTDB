@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RCTDB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1352e3',
+            secondary: '#36D399',
+            success: '#22c55e',
+            danger: '#ef4444',
+            warning: '#f59e0b',
+            info: '#3b82f6',
+            dark: '#1e293b',
+            light: '#f8fafc'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .bg-gradient-primary {
+        background: linear-gradient(135deg, #1352e3 0%, #042d7e 30%);
+      }
+      .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 999;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #165DFF;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      }
+      .back-to-top.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .back-to-top:hover {
+        background: #0040C1;
+        transform: translateY(-3px);
+      }
+      .highlight {
+        background-color: #dbeafe;
+        transition: background-color 0.3s;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 text-gray-800">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full top-0 z-40 transition-all duration-300 bg-white/90 backdrop-blur-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex items-center">
+          <a href="#" class="flex items-center">
+            <i class="fa fa-dna text-primary text-2xl mr-2"></i>
+            <span class="text-xl font-bold text-dark">RCTDB</span>
+          </a>
+        </div>
+        
+        <!-- 桌面导航 -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="#home" class="text-gray-600 hover:text-primary font-medium transition-colors">Home</a>
+          <a href="#browse" class="text-gray-600 hover:text-primary font-medium transition-colors">Browse Datasets</a>
+          <a href="#datasets" class="text-gray-600 hover:text-primary font-medium transition-colors">Datasets Overview</a>
+          <a href="#upload" class="text-gray-600 hover:text-primary font-medium transition-colors">Upload Dataset</a>
+          <a href="publications.html" class="text-gray-600 hover:text-primary font-medium transition-colors">Publications</a>
+        </nav>
+        
+        <!-- 移动端菜单按钮 -->
+        <div class="md:hidden">
+          <button id="menu-toggle" class="text-gray-600 hover:text-primary">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">Home</a>
+        <a href="#browse" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">Browse Datasets</a>
+        <a href="#datasets" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">Datasets Overview</a>
+        <a href="#upload" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">Upload Dataset</a>
+        <a href="publications.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">Publications</a>
+      </div>
+    </div>
+  </header>
+  
+  <!-- 主内容 -->
+  <main class="pt-16">
+    <!-- 首页 -->
+    <section id="home" class="relative bg-gradient-primary text-white overflow-hidden">
+      <div class="absolute inset-0 bg-[url('https://img95.699pic.com/photo/40005/8841.jpg_wh300.jpg')] bg-cover bg-center opacity-20"></div>
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 relative z-10">
+        <div class="max-w-3xl mx-auto text-center">
+          <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight text-shadow mb-6">
+            RCTDB
+          </h1>
+          <p class="text-[clamp(1rem,2vw,1.25rem)] text-white/90 mb-10">
+            Access, analyze, and contribute to the largest collection of rare tumors data
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#browse" class="px-6 py-3 bg-white text-primary font-medium rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+              Browse Datasets
+            </a>
+            <a href="#upload" class="px-6 py-3 bg-transparent border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-all">
+              Upload Dataset
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 波浪分隔符 -->
+      <div class="absolute bottom-0 left-0 w-full">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" class="w-full h-auto">
+          <path fill="#f8fafc" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+        </svg>
+      </div>
+    </section>
+    
+    <!-- 统计信息 -->
+    <section class="py-16 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                <i class="fa fa-database text-primary text-xl"></i>
+              </div>
+              <h3 class="text-lg font-semibold">Total Datasets</h3>
+            </div>
+            <p class="text-3xl font-bold text-gray-800" id="dataset-count">0</p>
+            <p class="text-sm text-gray-500 mt-2">Available rare tumors datasets</p>
+          </div>
+          
+          <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                <i class="fa fa-flask text-primary text-xl"></i>
+              </div>
+              <h3 class="text-lg font-semibold">Total Samples</h3>
+            </div>
+            <p class="text-3xl font-bold text-gray-800" id="total-sample-count">0</p>
+            <p class="text-sm text-gray-500 mt-2">Individual rare tumors samples</p>
+          </div>
+          
+          <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                <i class="fa fa-book text-primary text-xl"></i>
+              </div>
+              <h3 class="text-lg font-semibold">Publications</h3>
+            </div>
+            <p class="text-3xl font-bold text-gray-800" id="publication-count">0</p>
+            <p class="text-sm text-gray-500 mt-2">Research publications</p>
+          </div>
+          
+          <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                <i class="fa fa-users text-primary text-xl"></i>
+              </div>
+              <h3 class="text-lg font-semibold">Total Tumor Names</h3>
+            </div>
+            <p class="text-3xl font-bold text-gray-800" id="user-count">0</p>
+            <p class="text-sm text-gray-500 mt-2">Rare tumors names</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 浏览数据 -->
+    <section id="browse" class="py-10 bg-gray-50">
+      <div class="container mx-auto px-3 sm:px-4 lg:px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">Browse Datasets</h2>
+          <p class="text-gray-600 max-w-3xl mx-auto">Explore our collection of rare tumors genomic datasets. Filter by tumor name, data type, and more.</p>
+        </div>
+        
+        <!-- 搜索和筛选 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+              <div class="relative">
+                <input type="text" id="search-input" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="Search datasets...">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fa fa-search text-gray-400"></i>
+                </div>
+              </div>
+            </div>
+            
+      
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Data Type</label>
+              <select id="data-category-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                <option value="">All Types</option>
+                <option value="spatial transcriptome">Spatial Transcriptome</option>
+                <option value="transcriptome">Transcriptome</option>
+                <option value="Epigenomics">Epigenomics</option>
+                <option value="Proteome">Proteome</option>
+                <option value="Variation">Variation</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-end">
+            <button id="apply-filters" class="px-4 py-2 bg-primary text-white rounded-lg shadow hover:shadow-md hover:bg-primary/90 transition-colors">
+              Apply Filters
+            </button>
+          </div>
+        </div>
+        
+        <!-- 数据集表格 -->
+        <div class="overflow-x-auto bg-white rounded-xl shadow-sm">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Dataset code
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tumor Name
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Data Type
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Sample size
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Sequencing Tech
+                </th>
+               
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody id="datasets-table-body" class="bg-white divide-y divide-gray-200">
+              <!-- 动态生成表格内容 -->
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- 分页 -->
+        <div class="mt-8 flex justify-between items-center">
+          <div class="text-sm text-gray-500">
+            Showing <span id="showing-start">0</span> to <span id="showing-end">0</span> of <span id="total-results">0</span> results
+          </div>
+          <div class="flex space-x-2">
+            <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <i class="fa fa-chevron-left"></i>
+            </button>
+            <button id="next-page" class="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fa fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 数据集概览 -->
+    <section id="datasets" class="py-10 bg-white">
+      <div class="container mx-auto px-3 sm:px-4 lg:px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">Dataset Overview</h2>
+          <p class="text-gray-600 max-w-3xl mx-auto">Visualize our dataset distribution across different rare tumor names and data types.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
+          <!-- 癌症类型分布 -->
+          <div class="bg-gray-50 rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold mb-4">Rare Tumor Name Distribution</h3>
+            <div class="h-80">
+              <canvas id="tumor-name-chart"></canvas>
+            </div>
+          </div>
+          
+          <!-- 数据类别分布 -->
+          <div class="bg-gray-50 rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold mb-4">Data Type Distribution</h3>
+            <div class="h-80">
+              <canvas id="data-category-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 上传数据 -->
+    <section id="upload" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">Upload Dataset</h2>
+          <p class="text-gray-600 max-w-3xl mx-auto">Contribute to our collection by uploading your rare tumors genomic datasets. All submissions are reviewed before publication.</p>
+        </div>
+        
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-8">
+          <form id="upload-form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label for="dataset-name" class="block text-sm font-medium text-gray-700 mb-1">Dataset Name</label>
+                <input type="text" id="dataset-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required placeholder="Enter dataset name">
+              </div>
+              
+              <div>
+                <div>
+  <label for="tumor-name" class="block text-sm font-medium text-gray-700 mb-1">Tumor Name</label>
+  <input type="text" id="tumor-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required placeholder="Enter tumor name">
+</div>
+              </div>
+            </div>
+            
+           
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label for="dataType" class="block text-sm font-medium text-gray-700 mb-1">Data Type</label>
+                <input type="text" id="dataType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required placeholder="For example:transcriptome, Epigenomics">
+              </div>
+              
+              <div>
+                <label for="sequencingTech" class="block text-sm font-medium text-gray-700 mb-1">Sequencing Technologies</label>
+                <input type="text" id="sequencingTech" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="For example:RNA-seq, ATAC-seq">
+              </div>
+              
+              <div>
+                <label for="seriesAccession" class="block text-sm font-medium text-gray-700 mb-1">Series Accession</label>
+                <input type="text" id="seriesAccession" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="For example:GSE267806">
+              </div>
+              
+              <div>
+                <label for="pmid" class="block text-sm font-medium text-gray-700 mb-1">PMID</label>
+                <input type="text" id="pmid" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="Multiple IDs are separated by spaces">
+              </div>
+              
+              <div>
+                <label for="geoLink" class="block text-sm font-medium text-gray-700 mb-1">GEO Link</label>
+                <input type="url" id="geoLink" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="For example:https://www.ncbi.nlm.nih.gov/geo/...">
+              </div>
+              
+              <div>
+                <label for="upload-sample-count" class="block text-sm font-medium text-gray-700 mb-1">Sample Count</label>
+                <input type="number" id="upload-sample-count" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <label for="dataset-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea id="dataset-description" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required></textarea>
+            </div>
+            
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Files</label>
+              <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary transition-colors">
+                <div class="space-y-1 text-center">
+                  <i class="fa fa-cloud-upload text-4xl text-gray-400 mb-2"></i>
+                  <div class="flex text-sm text-gray-600">
+                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none">
+                      <span>Upload files</span>
+                      <input id="file-upload" name="file-upload" type="file" multiple class="sr-only">
+                    </label>
+                    <p class="pl-1">or drag and drop</p>
+                  </div>
+                  <p class="text-xs text-gray-500">
+                    CSV, TXT, BAM, VCF, or ZIP (Max 10GB)
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <label class="flex items-center">
+                <input type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" required>
+                <span class="ml-2 text-sm text-gray-600">
+                  I agree that my dataset complies with rare tumors data usage policies and will be made publicly available.
+                </span>
+              </label>
+            </div>
+            
+            <div class="flex justify-end">
+              <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg shadow hover:shadow-md hover:bg-primary/90 transition-colors">
+                <i class="fa fa-paper-plane mr-2"></i>Submit for Review
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 出版物 -->
+    <section id="publications" class="py-16 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">Publications</h2>
+          <p class="text-gray-600 max-w-3xl mx-auto">Explore research publications that have utilized data from our portal.</p>
+          
+          <div class="mt-6">
+            <a href="publications.html" class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg shadow hover:shadow-md hover:bg-primary/90 transition-colors">
+              <i class="fa fa-external-link mr-2"></i>Go to Publications Portal
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- 页脚 -->
+  <footer class="bg-gray-800 text-white py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center mb-4">
+            <i class="fa fa-dna text-primary text-2xl mr-2"></i>
+            <span class="text-xl font-bold">RCTDB</span>
+          </div>
+          <p class="text-gray-400 text-sm mb-4">
+            Providing access to rare tumors genomic data for researchers worldwide.
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-twitter"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-facebook"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-github"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-linkedin"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+          <ul class="space-y-2 text-gray-400">
+            <li><a href="#home" class="hover:text-white transition-colors">Home</a></li>
+            <li><a href="#browse" class="hover:text-white transition-colors">Browse Datasets</a></li>
+            <li><a href="#datasets" class="hover:text-white transition-colors">Dataset Overview</a></li>
+            <li><a href="#upload" class="hover:text-white transition-colors">Upload Dataset</a></li>
+            <li><a href="publications.html" class="hover:text-white transition-colors">Publications</a></li>
+          </ul>
+        </div>
+        
+         <!--<div>
+          <h4 class="text-lg font-semibold mb-4">Resources</h4>
+          <ul class="space-y-2 text-gray-400">
+            <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">API Access</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Data Usage Policy</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+          </ul>
+        </div>-->
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Subscribe</h4>
+          <p class="text-gray-400 text-sm mb-4">
+            Stay updated with the latest data releases and news.
+          </p>
+          <!--<form class="flex">
+            <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg focus:outline-none text-gray-800 w-full">
+            <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r-lg transition-colors">
+              <i class="fa fa-paper-plane"></i>
+            </button>
+          </form>-->
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-400 text-sm">
+          &copy; 2025 RCTDB. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- 返回顶部按钮 -->
+  <a href="#" class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+  </a>
+  
+  <!-- JavaScript -->
+  <script>
+    // 全局变量
+    let datasets = [];
+    let tumorTypes = [];
+    const allowedFileTypes = ['text/csv', 'text/plain', 'application/zip', 'application/octet-stream'];
+    const maxFileSize = 10 * 1024 * 1024 * 1024; // 10GB
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        showLoadingIndicator();
+        initNavbar();
+        
+        // 并行加载数据
+        await Promise.all([
+          fetchDatasets(),
+          fetchStats(),
+          fetchTumorTypes()
+        ]);
+        
+        initDatasetTable();
+        initCharts();
+        initUploadForm();
+        
+      } catch (error) {
+        console.error('Error initializing page:', error);
+        alert('Failed to load data: ' + error.message);
+      } finally {
+        hideLoadingIndicator();
+      }
+    });
+
+    // 加载指示器
+    function showLoadingIndicator() {
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.id = 'loading-indicator';
+      loadingIndicator.className = 'fixed inset-0 bg-white/80 flex items-center justify-center z-50';
+      loadingIndicator.innerHTML = `
+        <div class="text-center">
+          <i class="fa fa-circle-o-notch fa-spin text-5xl text-primary mb-4"></i>
+          <p class="text-xl text-gray-700">Loading data...</p>
+        </div>
+      `;
+      document.body.appendChild(loadingIndicator);
+    }
+
+    function hideLoadingIndicator() {
+      const loadingIndicator = document.getElementById('loading-indicator');
+      if (loadingIndicator) {
+        document.body.removeChild(loadingIndicator);
+      }
+    }
+
+    // API数据获取
+    async function fetchDatasets()//从后端 API 读取所有肿瘤数据集的完整列表，存储到全局变量 datasets 中，供表格展示、筛选、图表生成等功能使用。
+     {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/datasets');
+        //使用浏览器内置的 fetch 方法，向后端的 /api/datasets 接口发送 GET 请求。
+        //后端对应接口（app.py 中的 get_datasets 函数）会查询数据库中的 datasets 表，返回所有数据集的详细信息（如编号、肿瘤类型、样本量等）。
+        if (!response.ok) throw new Error('Failed to fetch datasets');
+        //检查请求是否成功
+        //response.ok 是 fetch 返回的响应对象属性，当 HTTP 状态码为 200-299 时为 true，否则为 false
+        datasets = await response.json();
+        //调用 response.json() 将后端返回的 JSON 格式字符串解析为 JavaScript 对象（数组类型，每个元素是一个数据集的详情）。
+        return datasets;
+      } catch (error) {
+        console.error('Error fetching datasets:', error);
+        throw error;
+      }
+    }
+
+    async function fetchStats() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/stats');
+        if (!response.ok) throw new Error('Failed to fetch statistics');
+        const stats = await response.json();
+        
+        // 更新统计数字
+        document.getElementById('dataset-count').textContent = stats.total_datasets || 0;
+        document.getElementById('total-sample-count').textContent = stats.total_samples || 0;
+        document.getElementById('publication-count').textContent = stats.total_publications || 0;
+        document.getElementById('user-count').textContent = stats.total_users?.toLocaleString() || '0';
+        
+        return stats;
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        throw error;
+      }
+    }
+
+    async function fetchTumorTypes() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/rare_tumor_types');
+        if (!response.ok) throw new Error('Failed to fetch tumor name');
+        tumorTypes = await response.json();
+        
+        // 过滤重复的肿瘤类型（按code）
+        const uniqueTumorTypes = [];
+        const codeSet = new Set();
+        
+        tumorTypes.forEach(type => {
+          if (!codeSet.has(type.code)) {
+            codeSet.add(type.code);
+            uniqueTumorTypes.push(type);
+          }
+        });
+        
+        tumorTypes = uniqueTumorTypes;
+        
+        // 更新筛选器和上传表单的肿瘤类型选项
+        const filters = [
+          document.getElementById('tumor-name-filter'),
+          document.getElementById('tumor-name')
+        ];
+        
+        filters.forEach(select => {
+          if (!select) return;
+          
+          // 保留第一个空选项
+          while (select.options.length > 1) select.remove(1);
+          
+          // 添加肿瘤类型
+          tumorTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.code;
+            option.textContent = `${type.name} (${type.code})`;
+            select.appendChild(option);
+          });
+          
+          // 添加其他选项
+          const otherOption = document.createElement('option');
+          otherOption.value = "Other";
+          otherOption.textContent = "Other (please specify)";
+          select.appendChild(otherOption);
+        });
+        
+        return tumorTypes;
+      } catch (error) {
+        console.error('Error fetching tumor name:', error);
+        return [];
+      }
+    }
+
+    // 导航栏初始化
+    function initNavbar() {
+      const navbar = document.getElementById('navbar');
+      const menuToggle = document.getElementById('menu-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      // 滚动效果
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          navbar.classList.add('shadow-md', 'bg-white');
+          navbar.classList.remove('bg-white/90');
+        } else {
+          navbar.classList.remove('shadow-md', 'bg-white');
+          navbar.classList.add('bg-white/90');
+        }
+      });
+      
+      // 移动端菜单
+      menuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+
+    // 数据集表格初始化
+    function initDatasetTable() {
+      const tableBody = document.getElementById('datasets-table-body');
+      const searchInput = document.getElementById('search-input');
+      //const tumorTypeFilter = document.getElementById('tumor-name-filter');
+      const dataCategoryFilter = document.getElementById('data-category-filter');
+      const applyFiltersBtn = document.getElementById('apply-filters');
+      const prevPageBtn = document.getElementById('prev-page');
+      const nextPageBtn = document.getElementById('next-page');
+      const showingStart = document.getElementById('showing-start');
+      const showingEnd = document.getElementById('showing-end');
+      const totalResults = document.getElementById('total-results');
+      
+      let currentPage = 1;
+      const pageSize = 5;
+      let filteredDatasets = [...datasets];
+      
+      // 渲染表格
+      function renderTable() {
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, filteredDatasets.length);
+        const currentDatasets = filteredDatasets.slice(startIndex, endIndex);
+        
+        tableBody.innerHTML = '';
+        
+        if (currentDatasets.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="7" class="px-6 py-12 text-center">
+                <i class="fa fa-search text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">No datasets found matching your criteria</p>
+              </td>
+            </tr>
+          `;
+        } else {
+          currentDatasets.forEach(dataset => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 transition-colors';
+            row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${dataset.code}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${dataset.tumor_name}</div>
+                <div class="text-xs text-gray-500">${dataset.tumor_type_code || ''}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${dataset.data_type}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${dataset.sample_size}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${dataset.sequencing_tech || ''}
+              </td>
+             
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <a href="#" class="text-primary hover:text-primary/80 mr-3 view-dataset" data-id="${dataset.code}">
+                  <i class="fa fa-eye mr-1"></i>View
+                </a>
+                <a href="#" class="text-success hover:text-success/80 download-dataset" data-id="${dataset.code}">
+                  <i class="fa fa-download mr-1"></i>Download
+                </a>
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        }
+        
+        // 更新分页信息
+        showingStart.textContent = filteredDatasets.length > 0 ? startIndex + 1 : 0;
+        showingEnd.textContent = endIndex;
+        totalResults.textContent = filteredDatasets.length;
+        
+        // 更新分页按钮状态
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = endIndex >= filteredDatasets.length;
+      }
+      
+      // 应用筛选
+     function applyFilters() {
+  const searchTerm = searchInput.value.toLowerCase();
+  const dataCategory = dataCategoryFilter.value;
+  
+  filteredDatasets = datasets.filter(dataset => {
+    // 关键字搜索逻辑
+    const matchesSearch = 
+      (dataset.code && dataset.code.toLowerCase().includes(searchTerm)) ||
+      (dataset.tumor_name && dataset.tumor_name.toLowerCase().includes(searchTerm)) ||
+      (dataset.data_type && dataset.data_type.toLowerCase().includes(searchTerm)) ||
+      (dataset.series_accession && dataset.series_accession.toLowerCase().includes(searchTerm)) ||
+      (dataset.pmid && dataset.pmid.toLowerCase().includes(searchTerm));
+    
+    // 数据类别筛选
+    const matchesDataCategory = !dataCategory || 
+      (dataset.data_type && dataset.data_type.toLowerCase() === dataCategory.toLowerCase());
+    
+    return matchesSearch && matchesDataCategory;
+  });
+  
+  currentPage = 1;
+  renderTable();
+}
+      
+      // 事件监听
+      applyFiltersBtn.addEventListener('click', applyFilters);
+      searchInput.addEventListener('keyup', (e) => e.key === 'Enter' && applyFilters());
+      
+      prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+        }
+      });
+      
+      nextPageBtn.addEventListener('click', () => {
+        if ((currentPage * pageSize) < filteredDatasets.length) {
+          currentPage++;
+          renderTable();
+        }
+      });
+      
+      // 查看和下载事件
+      tableBody.addEventListener('click', (e) => {
+        if (e.target.closest('.view-dataset')) {
+          e.preventDefault();
+          const datasetId = e.target.closest('.view-dataset').dataset.id;
+          viewDataset(datasetId);
+        } else if (e.target.closest('.download-dataset')) {
+        e.preventDefault();
+        const datasetCode = e.target.closest('.download-dataset').dataset.id;
+        downloadDataset(datasetCode);  // 调用下载函数
+    }
+      });
+      
+      renderTable();
+    }
+
+    // 查看数据集详情
+    function viewDataset(code) {
+      const dataset = datasets.find(ds => ds.code === code);
+      if (!dataset) {
+        alert('Dataset not found!');
+        return;
+      }
+      
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+      modal.innerHTML = `
+        <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="p-6 border-b">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xl font-bold">Dataset Details</h3>
+              <button class="close-modal text-gray-500 hover:text-gray-700">
+                <i class="fa fa-times text-xl"></i>
+              </button>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <p class="text-sm text-gray-500">Dataset ID</p>
+                <p class="font-medium">${dataset.code}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Tumor Name</p>
+                <p class="font-medium">${dataset.tumor_name}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">System</p>
+                <p class="font-medium">${dataset.system || 'N/A'}</p>
+              </div>
+
+              <div>
+                <p class="text-sm text-gray-500">Data Type</p>
+                <p class="font-medium">${dataset.data_type}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Sample Count</p>
+                <p class="font-medium">${dataset.sample_size}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Sequencing Tech</p>
+                <p class="font-medium">${dataset.sequencing_tech || 'N/A'}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Series Accession</p>
+                <p class="font-medium">${dataset.series_accession || 'N/A'}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">PMID</p>
+                <p class="font-medium">${dataset.pmid || 'N/A'}</p>
+              </div>
+              ${dataset.file_size ? `
+              <div>
+                <p class="text-sm text-gray-500">File Size</p>
+                <p class="font-medium">${dataset.file_size}</p>
+              </div>
+              ` : ''}
+            </div>
+            
+            <div class="mb-6">
+              <p class="text-sm text-gray-500 mb-1">GEO Link</p>
+              ${dataset.geo_link ? `
+                <a href="${dataset.geo_link}" target="_blank" class="text-primary hover:underline font-medium">
+                  ${dataset.geo_link}
+                </a>
+              ` : '<p class="font-medium">N/A</p>'}
+            </div>
+            
+            <div class="mb-6">
+              <p class="text-sm text-gray-500 mb-1">Description</p>
+              <p class="font-medium">${dataset.description || 'No description available'}</p>
+            </div>
+            
+            <div class="flex justify-end">
+              <button class="download-dataset-modal px-4 py-2 bg-success text-white rounded-lg shadow hover:shadow-md hover:bg-success/90 transition-colors" data-id="${dataset.id}">
+                <i class="fa fa-download mr-2"></i>Download Dataset
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // 关闭弹窗
+      modal.querySelector('.close-modal').addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+      
+      // 点击外部关闭弹窗
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          document.body.removeChild(modal);
+        }
+      });
+      
+      // 下载按钮
+      modal.querySelector('.download-dataset-modal').addEventListener('click', () => {
+        downloadDataset(code);
+        document.body.removeChild(modal);
+      });
+    }
+
+    // 下载数据集功能
+    function downloadDataset(datasetCode) {
+    // 调用后端接口，传入数据集code
+    const downloadUrl = `http://127.0.0.1:5000/api/dataset/${datasetCode}/download_from_db`;
+    
+    // 创建隐藏的a标签触发下载
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+
+      // 显示下载成功提示
+      alert(`Successfully downloaded metadata for dataset: ${dataset.code}`);
+    }
+
+    // 初始化图表
+    function initCharts() {
+      // 准备图表数据
+      const tumorTypeData = {};
+      const categoryData = {};
+      
+      // 从数据集提取数据
+      datasets.forEach(dataset => {
+        // 肿瘤类型数据
+        const tumorTypeKey = dataset.tumor_type_code ? 
+          `${dataset.tumor_name} (${dataset.tumor_type_code})` : 
+          dataset.tumor_name || 'Unknown';
+          
+        tumorTypeData[tumorTypeKey] = (tumorTypeData[tumorTypeKey] || 0) + 1;
+        
+        // 数据类别数据
+        categoryData[dataset.data_type] = (categoryData[dataset.data_type] || 0) + 1;
+      });
+      
+      // 癌症类型分布
+      const tumorTypeCtx = document.getElementById('tumor-name-chart').getContext('2d');
+      new Chart(tumorTypeCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(tumorTypeData),
+          datasets: [{
+            label: 'Number of Datasets',
+            data: Object.values(tumorTypeData),
+            backgroundColor: '#3b82f6',
+            borderColor: '#1d4ed8',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+      
+      // 数据类别分布
+      const dataCategoryCtx = document.getElementById('data-category-chart').getContext('2d');
+      new Chart(dataCategoryCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(categoryData),
+          datasets: [{
+            data: Object.values(categoryData),
+            backgroundColor: [
+              '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+            ],
+            borderColor: [
+              '#1d4ed8', '#047857', '#d97706', '#b91c1c', '#7e22ce'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+            }
+          }
+        }
+      });
+    }
+
+    // 初始化数据上传表单
+    function initUploadForm() {
+      const uploadForm = document.getElementById('upload-form');
+      if (!uploadForm) return;
+      const fileInput = document.getElementById('file-upload');
+      const dropArea = uploadForm.querySelector('.border-dashed');
+      
+      // 文件验证
+      function validateFiles(files) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          
+          // 验证文件类型
+          const fileExtension = file.name.split('.').pop().toLowerCase();
+          const isValidType = allowedFileTypes.includes(file.type) || 
+                             ['bam', 'vcf', 'csv', 'txt', 'zip'].includes(fileExtension);
+          
+          if (!isValidType) {
+            alert(`Invalid file type: ${file.name}. Allowed types: CSV, TXT, BAM, VCF, ZIP`);
+            return false;
+          }
+          
+          // 验证文件大小
+          if (file.size > maxFileSize) {
+            alert(`File too large: ${file.name}. Maximum size is 10GB`);
+            return false;
+          }
+        }
+        return true;
+      }
+      
+      // 文件选择验证
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+          if (!validateFiles(fileInput.files)) {
+            fileInput.value = '';
+          }
+        }
+      });
+      
+      // 拖拽上传处理
+      if (dropArea && fileInput) {
+        dropArea.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropArea.classList.add('border-primary');
+        });
+        
+        dropArea.addEventListener('dragleave', (e) => {
+          e.preventDefault();
+          dropArea.classList.remove('border-primary');
+        });
+        
+        dropArea.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropArea.classList.remove('border-primary');
+          
+          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            if (validateFiles(e.dataTransfer.files)) {
+              fileInput.files = e.dataTransfer.files;
+            }
+          }
+        });
+      }
+      
+      // 表单提交处理
+      uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          // 收集表单数据
+          const formData = new FormData();
+          formData.append('name', document.getElementById('dataset-name').value);
+          formData.append('tumorType', document.getElementById('tumor-name').value);
+          formData.append('dataType', document.getElementById('dataType').value);
+          formData.append('sequencingTech', document.getElementById('sequencingTech').value);
+          formData.append('sampleCount', document.getElementById('upload-sample-count').value);
+          formData.append('seriesAccession', document.getElementById('seriesAccession').value);
+          formData.append('pmid', document.getElementById('pmid').value);
+          formData.append('geoLink', document.getElementById('geoLink').value);
+          formData.append('description', document.getElementById('dataset-description').value);
+          
+          // 添加文件
+          // if (fileInput.files.length > 0) {
+          //   for (let i = 0; i < fileInput.files.length; i++) {
+          //     formData.append('files', fileInput.files[i]);
+          //   }
+          // } else {
+          //   alert('Please upload at least one file');
+          //   return;
+          // }
+          
+          // 显示上传进度
+          const submitButton = e.target.querySelector('button[type="submit"]');
+          submitButton.disabled = true;
+          submitButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Uploading...';
+          
+          // 发送上传请求
+          const response = await fetch('http://127.0.0.1:5000/api/dataset', { 
+            method: 'POST', 
+            body: formData 
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Upload failed');
+          }
+          
+          const result = await response.json();
+          
+          // 重置表单
+          uploadForm.reset();
+          
+          // 恢复按钮状态
+          submitButton.disabled = false;
+          submitButton.innerHTML = '<i class="fa fa-paper-plane mr-2"></i>Submit for Review';
+          
+          // 显示成功消息
+          alert(`Dataset uploaded successfully! Your dataset ID is: ${result.id}`);
+          
+          // 重新加载数据集
+          await fetchDatasets();
+          initDatasetTable();
+          initCharts();
+          fetchStats();
+          
+        } catch (error) {
+          console.error('Upload error:', error);
+          alert('Dataset upload failed: ' + error.message);
+          
+          // 恢复按钮状态
+          const submitButton = e.target.querySelector('button[type="submit"]');
+          submitButton.disabled = false;
+          submitButton.innerHTML = '<i class="fa fa-paper-plane mr-2"></i>Submit for Review';
+        }
+      });
+    }
+
+    // 平滑滚动和返回顶部按钮
+    (function() {
+      // 平滑滚动
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          if (targetId === '#') return;
+          
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+            
+            // 如果是移动菜单，点击后关闭
+            if (window.innerWidth < 768) {
+              document.getElementById('mobile-menu').classList.add('hidden');
+            }
+          }
+        });
+      });
+      
+      // 返回顶部按钮
+      const backToTopButton = document.querySelector('.back-to-top');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          backToTopButton.classList.add('show');
+        } else {
+          backToTopButton.classList.remove('show');
+        }
+      });
+      
+      backToTopButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

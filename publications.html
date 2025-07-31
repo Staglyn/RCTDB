@@ -1,0 +1,2639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Publications </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#1E40AF',
+                        accent: '#10B981',
+                        background: '#F3F4F6',
+                        card: '#FFFFFF',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        card: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .pub-card-hover {
+            transition: all 0.3s ease;
+        }
+        .pub-card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .filter-active {
+            background-color: #3B82F6;
+            color: white;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        .tag-tumor {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        .tag-year {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        .tag-journal {
+            background-color: #EDE9FE;
+            color: #5B21B6;
+        }
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #D1D5DB;
+            background-color: white;
+            color: #4B5563;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .page-btn:hover:not(:disabled) {
+            background-color: #F3F4F6;
+        }
+        .page-btn.active {
+            background-color: #3B82F6;
+            color: white;
+            border-color: #3B82F6;
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .stats-badge {
+            background-color: #EFF6FF;
+            color: #1D4ED8;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        /* Modal styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            padding: 2rem;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .modal-backdrop.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+        .modal-close:hover {
+            color: #111827;
+        }
+        .card-clickable {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="mb-10 text-center">
+            <div class="inline-block p-3 rounded-lg bg-blue-50 mb-5">
+                <i class="fa fa-book text-primary text-3xl"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-3">Publications</h1>
+            <p class="text-gray-600 max-w-3xl mx-auto">
+                Explore research publications that have utilized data from our portal, covering various tumor names and research findings.
+            </p>
+        </header>
+
+        <!-- Stats Summary -->
+        <div class="flex flex-wrap justify-center gap-4 mb-8">
+            <div class="flex items-center gap-2">
+                <div class="stats-badge">
+                    <i class="fa fa-file-text-o mr-2"></i>
+                    <span id="totalCount">0</span> Publications
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="stats-badge">
+                    <i class="fa fa-calendar mr-2"></i>
+                    <span id="yearRange">2000-2025</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="stats-badge">
+                    <i class="fa fa-flask mr-2"></i>
+                    <span id="tumorTypes">40</span> Tumor Names
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Area -->
+        <div class="bg-card rounded-card rounded-xl shadow-sm p-5 mb-8">
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="relative flex-grow">
+                    <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search by title, DOI, journal, or PMID..." 
+                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+                    >
+                </div>
+                
+                <div class="flex flex-wrap gap-3">
+                    <select id="yearFilter" class="border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/50 focus:border-primary-primary outline-none transition-all min-w-[140px]">
+                        <option value="">All Years</option>
+                        <!-- Year options will be generated dynamically -->
+                    </select>
+                    
+                    <select id="tumorFilter" class="border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all min-w-[180px]">
+                        <option value="">All Tumor Names</option>
+                        <!-- tumor name options will be generated dynamically -->
+                    </select>
+                    
+                    <select id="sortFilter" class="border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/50 focus:borderborder-primary-primary outline-none transition-all min-w-[200px]">
+                        <option value="year-desc">Year (Newest First)</option>
+                        <option value="year-asc">Year (Oldest First)</option>
+                        <option value="title-asc">Title (A-Z)</option>
+                        <option value="title-desc">Title (Z-A)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center text-sm text-gray-600">
+                <div id="countInfo">Showing <span id="visibleCount" class="font-medium">0</span> publications</div>
+                <button id="resetFilters" class="text-primary hover:text-primary/80 flex items-center gap-1.5 font-medium">
+                    <i class="fa fa-refresh"></i> Reset Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Publications Display Area -->
+        <div id="pubContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            <!-- Publication cards will be generated dynamically -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination" class="flex justify-center items-center gap-2 mb-8">
+            <button id="prevPage" class="page-btn">
+                <i class="fa fa-chevron-left text-xs"></i>
+            </button>
+            <div id="pageNumbers" class="flex gap-1">
+                <!-- Page numbers will be generated dynamically -->
+            </div>
+            <button id="nextPage" class="page-btn">
+                <i class="fa fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+
+        <footer class="text-center text-gray-500 text-sm py-6 border-t border-gray-200 mt-8">
+            <p>© 2025 RCTDB. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Modal for full title -->
+    <div id="fullTitleModal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold text-gray-800">Full Publication Title</h3>
+                <button id="closeModal" class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalTitleContent" class="text-lg text-gray-700 leading-relaxed"></p>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-sm text-gray-500">
+                        <i class="fa fa-info-circle mr-1"></i> Click anywhere outside this window or use the × button to close.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Publication data
+        const publications = [
+            {
+                pmid: "38781959",
+                title: "Single-cell multiomics profiling reveals heterogeneous transcriptional programs and microenvironment in DSRCTs",
+                doi: "10.1016/j.xcrm.2024.101582",
+                year: "2024",
+                journal: "Cell Reports Medicine",
+                note: "DSRCT Desmoplastic Small Round Cell Tumor"
+            },
+            {
+                pmid: "39358389",
+                title: "Comparison of DNA methylation based classification models for precision diagnostics of central nervous system tumors",
+                doi: "10.1038/s41698-024-00718-3",
+                year: "2024",
+                journal: "NPJ Precis Oncol",
+                note: "DSRCT Desmoplastic Small Round Cell Tumor"
+            },
+            {
+                pmid: "32232006",
+                title: "Micro-RNA Expression Patterns Predict Metastatic Spread in Solid Pseudopapillary Neoplasms of the Pancreas",
+                doi: "10.3389/fonc.2020.00328",
+                year: "2020",
+                journal: "Frontiers in Oncology",
+                note: "Solid pseudopapillary neoplasm (SPN) is a solid pseudopapillary tumor"
+            },
+            {
+                pmid:"24072181",
+                title:"Characterization of gene expression and activated signaling pathways in solid-pseudopapillary neoplasm of pancreas",
+                doi: "10.1038/modpathol.2013.154",
+                year: "2014",
+                journal: "Modern Pathology",
+                note: "Solid pseudopapillary neoplasm (SPN) is a solid pseudopapillary tumor"
+            },
+            {
+                pmid:"39948701",
+                title:"Single-Nucleus RNA Sequencing and Spatial Transcriptomics for Squamous Cell Carcinoma Arising From Ovarian Mature Teratoma",
+                doi: "10.1111/cas.70022",
+                year: "2025",
+                journal: "tumor Science",
+                note: "Squamous cell carcinoma arising from mature teratoma (SCC-MT)"
+            },
+            {
+                pmid:"39958888",
+                title:"HDAC10 and its implications in Sézary syndrome pathogenesis",
+                doi: "10.3389/fcell.2025.1480192",
+                year: "2025",
+                journal: "Frontiers in Cell and Developmental Biology",
+                note: "Cutaneous T-cell lymphomas (CTCL)"
+            }
+            ,
+            {
+                pmid:"39207122",
+                title:"Meningeal solitary fibrous tumor cell states phenocopy cerebral vascular development and homeostasis",
+                doi: "10.1093/neuonc/noae172",
+                year: "2025",
+                journal: "Neuro-Oncology",
+                note: "Meningeal solitary fibrous tumors (SFTs)"
+            }
+            ,
+            {
+                pmid:"39796140",
+                title:"microRNA Profile of High-Grade B-Cell Lymphoma with 11q Aberration",
+                doi: "10.3390/ijms26010285",
+                year: "2024",
+                journal: "International Journal of Molecular Sciences",
+                note: "High-grade B-cell lymphoma with 11q aberration (HGBCL-11q) 						"
+            }
+            ,
+            {
+                pmid:"39681068",
+                title:"Transcriptomic and proteomic profiling identifies feline fibrosarcoma as clinically amenable model for aggressive sarcoma subtypes",
+                doi: "10.1016/j.neo.2024.101104",
+                year: "2025",
+                journal: "Neoplasia",
+                note: "Fibrosarcomas (FSA) "
+            }
+            ,
+            {
+                pmid:"40038310",
+                title:"Comprehensive molecular portrait reveals genetic diversity and distinct molecular subtypes of small intestinal neuroendocrine tumors",
+                doi: "10.1038/s41467-025-57305-8",
+                year: "2025",
+                journal: "nature communications",
+                note: "Small intestinal neuroendocrine tumors (siNETs)"
+            }
+            ,
+            {
+                pmid:"39768544",
+                title:"Pancreatic Neuroendocrine Tumor: The Case Report of a Patient with Germline FANCD2 Mutation and Tumor Analysis Using Single-Cell RNA Sequencing",
+                doi: "10.3390/jcm13247621",
+                year: "2024",
+                journal: "Special Issue Neuroendocrine Tumors",
+                note: "Pancreatic Neuroendocrine Tumor(pNETs)"
+            }
+            ,
+            {
+                pmid:"39691991",
+                title:"Genomic characterization and histologic analysis of uterine leiomyosarcoma arising from leiomyoma with bizarre nuclei",
+                doi: "10.1002/path.6379",
+                year: "2024",
+                journal: "The Journal of Pathology",
+                note: "Leiomyoma with bizarre nuclei (LM-BN), leiomyosarcoma (LMS)	"
+            }
+            ,
+            {
+                pmid:"39495206",
+                title:"FOXR2 Targets LHX6+/DLX+ Neural Lineages to Drive Central Nervous System Neuroblastoma",
+                doi: "10.1158/0008-5472.CAN-24-2248",
+                year: "2025",
+                journal: "tumor Research",
+                note: "Neuroblastoma of the central nervous system with Forkhead box R2 (FOXR2) alteration (CNS NB - FOXR2)"
+            }
+            ,
+            {
+                pmid:"34680294",
+                title:"Atypical Teratoid Rhabdoid Tumours Are Susceptible to Panobinostat-Mediated Differentiation Therapy",
+                doi: "10.3390/tumors13205145",
+                year: "2021",
+                journal: "tumors",
+                note: "Atypical teratoid rhabdoid tumour (ATRT)"
+            }
+            ,
+            {
+                pmid:"39386756",
+                title:"Single-cell RNA sequencing and spatial transcriptomics of bladder Ewing sarcoma",
+                doi: "10.1016/j.isci.2024.110921",
+                year: "2024",
+                journal: "iScience",
+                note: "Bladder Ewing sarcoma/primitive neuroectodermal tumor (bladder ES/PNET)"
+            }
+            ,
+            {
+                pmid:"39373181",
+                title:"Histomorphologic spectrum of nodal marginal zone lymphoma as defined by its methylome",
+                doi: "10.1093/ajcp/aqae120",
+                year: "2025",
+                journal: "American journal of clinical pathology",
+                note: "Primary nodal marginal B cell lymphoma (nMZoL)"
+            }
+            ,
+            {
+                pmid:"39368085",
+                title:"NBAtlas: A harmonized single-cell transcriptomic reference atlas of human neuroblastoma tumors",
+                doi: "10.1016/j.celrep.2024.114804",
+                year: "2024",
+                journal: "Cell Reports ",
+                note: "Neuroblastoma"
+            }
+            ,
+            {
+                pmid:"39024554",
+                title:"Transcriptome and microbiome-immune changes across preinvasive and invasive anal tumor lesions",
+                doi: "10.1172/jci.insight.180907",
+                year: "2024",
+                journal: "JCI insight",
+                note: "Anal squamous cell carcinoma (ASCC)"
+            }
+            ,
+            {
+                pmid:"39170623",
+                title:"Association of immune evasion in myeloid sarcomas with disease manifestation and patients' survival",
+                doi: "10.3389/fimmu.2024.1396187",
+                year: "2024",
+                journal: "Frontiers in immunology",
+                note: "Myeloid sarcomas (MS)"
+            }
+            ,
+            {
+                pmid:"39117615",
+                title:"Combination of eribulin and anlotinib exerts synergistic cytotoxicity in retroperitoneal liposarcoma by inducing endoplasmic reticulum stress",
+                doi: "10.1038/s41420-024-02103-2",
+                year: "2024",
+                journal: "Cell death discovery",
+                note: "Primary retroperitoneal liposarcoma (RLPS)"
+            }
+            ,
+            {
+                pmid:"38927890",
+                title:"Combined Treatment of Uterine Leiomyosarcoma with Gamma Secretase Inhibitor MK-0752 and Chemotherapeutic Agents Decreases Cellular Invasion and Increases Apoptosis",
+                doi: "10.3390/tumors16122184",
+                year: "2024",
+                journal: "tumors",
+                note: "Uterine leiomyosarcoma (uLMS)"
+            }
+            ,
+            {
+                pmid:"38723854",
+                title:"Identification of RNF213 as a Potential Suppressor of Local Invasion in Intrahepatic Cholangiocarcinoma",
+                doi: "10.1016/j.labinv.2024.102074",
+                year: "2024",
+                journal: "Laboratory investigation;a journal of technical methods and pathology",
+                note: "intraductal papillary neoplasm of the bile duct (IPNB)"
+            }
+            ,
+            {
+                pmid:"39128494",
+                title:"Spatial and Single-Cell Transcriptomics Reveal that Oncofetal Reprogramming of Fibroblasts Is Associated with Malignant Degeneration of Burn Scar",
+                doi: "10.1016/j.jid.2024.07.022",
+                year: "2025",
+                journal: "The Journal of investigative dermatology",
+                note: "Marjolin's ulcer"
+            }
+            ,
+            {
+                pmid:"39062082",
+                title:"MUC1-C Dependence for the Progression of Pancreatic Neuroendocrine Tumors Identifies a Druggable Target for the Treatment of This Rare tumor",
+                doi: "10.3390/biomedicines12071509",
+                year: "2024",
+                journal: "Biomedicines",
+                note: "Pancreatic Neuroendocrine Tumor(PanNETs)"
+            }
+            ,
+            {
+                pmid:"38788720",
+                title:"Olfactory neuroblastoma mimics molecular heterogeneity and lineage trajectories of small-cell lung tumor",
+                doi: " 10.1016/j.ccell.2024.05.003",
+                year: "2024",
+                journal: "tumor Cell",
+                note: "olfactory neuroblastoma (ONB)"
+            }
+            ,
+            {
+                pmid:" 38657118",
+                title:"ASPSCR1::TFE3 Drives Alveolar Soft Part Sarcoma by Inducing Targetable Transcriptional Programs",
+                doi: "10.1158/0008-5472.CAN-23-2115",
+                year: "2024",
+                journal: "tumor Research",
+                note: "Alveolar soft part sarcoma (ASPS) "
+            }
+            ,
+            {
+                pmid:"38657100",
+                title:"Extracellular Vesicles Containing circMYBL1 Induce CD44 in Adenoid Cystic Carcinoma Cells and Pulmonary Endothelial Cells to Promote Lung Metastasis",
+                doi: "10.1158/0008-5472.CAN-23-3508",
+                year: "2024",
+                journal: "tumor Research",
+                note: "Adenoid cystic carcinoma (ACC) "
+            }
+            ,
+            {
+                pmid:"38624230",
+                title:"The role of HPV11 E7 in modulating STING-dependent interferon β response in recurrent respiratory papillomatosis",
+                doi: "10.1128/jvi.01925-23",
+                year: "2024",
+                journal: "Journal of virology",
+                note: "Recurrent respiratory papillomatosis (RRP)"
+            }
+            ,
+            {
+                pmid:"38417460",
+                title:"Uterine leiomyosarcoma cell-derived extracellular vesicles induce the formation of tumor-associated fibroblasts",
+                doi: "10.1016/j.bbadis.2024.167103",
+                year: "2024",
+                journal: "Biochimica et biophysica acta.Molecular basis of disease",
+                note: "Uterine leiomyosarcoma (uLMS)"
+            }
+            ,
+            {
+                pmid:" 38275898",
+                title:"CIC-DUX4 Chromatin Profiling Reveals New Epigenetic Dependencies and Actionable Therapeutic Targets in CIC-Rearranged Sarcomas",
+                doi: "10.3390/tumors16020457",
+                year: "2024",
+                journal: "tumors",
+                note: "CIC-DUX4-rearranged sarcoma (CDS)"
+            }
+            ,
+            {
+                pmid:"38058213",
+                title:"MicroRNA and long non-coding RNA analysis in IgM-monoclonal gammopathies reveals epigenetic influence on cellular functions and oncogenesis",
+                doi: "10.3324/haematol.2023.283927",
+                year: "2024",
+                journal: "Haematologica",
+                note: "Waldenström macroglobulinemia (WM)"
+            }
+            ,
+            {
+                pmid:"36787739",
+                title:"Targeted long-read sequencing of the Ewing sarcoma 6p25.1 susceptibility locus identifies germline-somatic interactions with EWSR1-FLI1 binding",
+                doi: "10.1016/j.ajhg.2023.01.017",
+                year: "2023",
+                journal: "American journal of human genetics",
+                note: "Ewing sarcoma (EwS)"
+            }
+            ,
+            {
+                pmid:"37808628",
+                title:"Expression of the CIC-DUX4 fusion oncoprotein mimics human CIC-rearranged sarcoma in genetically engineered mouse models",
+                doi: " 10.1101/2023.09.26.559519",
+                year: "2023",
+                journal: "bioRxiv:the preprint server for biology",
+                note: "CIC-DUX4-rearranged sarcoma (CDS)"
+            }
+            ,
+            {
+                pmid:"37961185",
+                title:"Expression of the CIC-DUX4 fusion oncoprotein mimics human CIC-rearranged sarcoma in genetically engineered mouse models",
+                doi: " 10.21203/rs.3.rs-3487637/v1",
+                year: "2023",
+                journal: "Research square",
+                note: "CIC-DUX4-rearranged sarcoma (CDS)"
+            }
+            ,
+            {
+                pmid:" 36879456",
+                title:"Patient-derived xenograft mouse models to investigate tropism to the central nervous system and retina of primary and secondary central nervous system lymphoma",
+                doi: "10.1111/nan.12899",
+                year: "2023",
+                journal: "Neuropathology and applied neurobiology",
+                note: "Primary diffuse large B-cell lymphoma (DLBCL) "
+            }
+            ,
+            {
+                pmid:"37718909",
+                title:"Microenvironment-dependent growth of Sezary cells in humanized IL-15 mice",
+                doi: "10.1242/dmm.050190",
+                year: "2023",
+                journal: "Disease models &mechanisms",
+                note: "Cutaneous T-cell lymphomas (CTCL) "
+            }
+            ,
+            {
+                pmid:"37647805",
+                title:"Histone H3 K27M-mediated regulation of tumor cell stemness and differentiation in diffuse midline glioma",
+                doi: " 10.1016/j.neo.2023.100931",
+                year: "2023",
+                journal: "Neoplasia(New York,N.Y.)",
+                note: "Diffuse intrinsic pontine glioma (DIPG)"
+            }
+            ,
+            {
+                pmid:" 37492373",
+                title:"Heterogeneity in the gene regulatory landscape of leiomyosarcoma",
+                doi: "10.1093/narcan/zcad037",
+                year: "2023",
+                journal: "NAR tumor",
+                note: "Soft-tissue sarcomas"
+            }
+            ,
+            {
+                pmid:" 37457440",
+                title:"Genomic Breakpoint Characterization and Transcriptome Analysis of Metastatic, Recurrent Desmoplastic Small Round Cell Tumor",
+                doi: " 10.1155/2023/6686702",
+                year: "2023",
+                journal: "Sarcoma",
+                note: "Desmoplastic small round cell tumor (DSRCT) "
+            }
+            ,
+            {
+                pmid:"37434245",
+                title:"DNA methylation, combined with RNA sequencing, provide novel insight into molecular classification of chordomas and their microenvironment",
+                doi: "10.1186/s40478-023-01610-0",
+                year: "2023",
+                journal: "Acta neuropathologica communications",
+                note: "Chordoma"
+            }
+            ,
+            {
+                pmid:" 37433032",
+                title:"Intraperitoneal Paclitaxel Is a Safe and Effective Therapeutic Strategy for Treating Mucinous Appendiceal Adenocarcinoma",
+                doi: " 10.1158/0008-5472.CAN-23-0013",
+                year: "2023",
+                journal: "tumor Research",
+                note: "Appendiceal adenocarcinomas (AAs)"
+            }
+            ,
+            {
+                pmid:"38448751",
+                title:"PRRX1-TOP2A interaction is a malignancy-promoting factor in human malignant peripheral nerve sheath tumours",
+                doi: "10.1038/s41416-024-02632-8",
+                year: "2024",
+                journal: "British journal of tumor",
+                note: "Malignant nerve sheath tumors (MPNST)"
+            }
+            ,
+            {
+                pmid:" 37158111",
+                title:"Effectiveness of irinotecan plus trabectedin on a desmoplastic small round cell tumor patient-derived xenograft",
+                doi: "10.1242/dmm.049649",
+                year: "2023",
+                journal: "Disease models &mechanisms",
+                note: "Desmoplastic Small Round Cell Tumor（DSRCT）"
+            }
+            ,
+            {
+                pmid:" 37261086",
+                title:"CD8 T cell-mediated depletion of HBV surface-antigen-expressing, bilineal-differentiated liver carcinoma cells generates highly aggressive escape variants",
+                doi: " 10.1080/2162402X.2023.2215096",
+                year: "2023",
+                journal: "Oncoimmunology",
+                note: " Combined HCC-iCCA"
+            }
+            ,
+            {
+                pmid:"37421947",
+                title:"Single-cell dissection of Merkel cell carcinoma heterogeneity unveils transcriptomic plasticity and therapeutic vulnerabilities",
+                doi: " 10.1016/j.xcrm.2023.101101",
+                year: "2023",
+                journal: "Cell Reports Medicine",
+                note: "Merkel cell carcinoma (MCC)"
+            }
+            ,
+            {
+                pmid:"37957624",
+                title:"Establishment and characterization of a non-gestational choriocarcinoma patient-derived xenograft model",
+                doi: "10.1186/s12885-023-11626-3",
+                year: "2023",
+                journal: "BMC tumor",
+                note: " Non-gestational choriocarcinoma (NGC)"
+            }
+            ,
+            {
+                pmid:"37129912",
+                title:"β-Catenin-Driven Differentiation Is a Tissue-Specific Epigenetic Vulnerability in Adrenal tumor",
+                doi: "10.1158/0008-5472.CAN-22-2712",
+                year: "2023",
+                journal: "tumor Research",
+                note: "Adrenocortical carcinoma (ACC) "
+            }
+            ,
+            {
+                pmid:"37163604",
+                title:"Single-cell multiomic analysis identifies a HOX-PBX gene network regulating the survival of lymphangioleiomyomatosis cells",
+                doi: "10.1126/sciadv.adf8549",
+                year: "2023",
+                journal: "Science advances",
+                note: "Lymphangioleiomyomatosis (LAM)"
+            }
+            ,
+            {
+                pmid:" 37106027",
+                title:"Spatial transcriptomics reveal topological immune landscapes of Asian head and neck angiosarcoma",
+                doi: " 10.1038/s42003-023-04856-5",
+                year: "2023",
+                journal: "Communications biology",
+                note: "Angiosarcomas"
+            }
+            ,
+            {
+                pmid:"39409192",
+                title:"High-Throughput Transcriptomics Identifies Chemoresistance-Associated Gene Expression Signatures in Human Angiosarcoma",
+                doi: "10.3390/ijms251910863",
+                year: "2024",
+                journal: "International Journal of Molecular Sciences"
+                
+            }
+            ,
+            {
+                pmid:" 39872529",
+                title:"Multiomics characterization of breast angiosarcoma from an Asian cohort reveals enrichment for angiogenesis signaling pathway and tumor-infiltrating macrophages",
+                doi: " 10.3389/fimmu.2024.1515935",
+                year: "2025",
+                journal: "Frontiers in immunology"
+               
+            }
+            ,
+            {
+                pmid:"36765607",
+                title:"Pre-Clinical Evaluation of the Hypomethylating Agent Decitabine for the Treatment of T-Cell Lymphoblastic Lymphoma",
+                doi: "10.3390/tumors15030647",
+                year: "2023",
+                journal: "tumors"
+              
+            }
+            ,
+            {
+                pmid:"36740715",
+                title:"Aberrant JAK-STAT signaling-mediated chromatin remodeling impairs the sensitivity of NK/T-cell lymphoma to chidamide",
+                doi: " 10.1186/s13148-023-01436-6",
+                year: "2023",
+                journal: "Clinical epigenetics"
+          
+            }
+            ,
+            {
+                pmid:"37663298",
+                title:"Carboxypeptidase E is a prognostic biomarker co-expressed with osteoblastic genes in osteosarcoma",
+                doi: " 10.7717/peerj.15814",
+                year: "2023",
+                journal: "Peerj"
+              
+            }
+            ,
+            {
+                pmid:"39134603",
+                title:"Development and experimental validation of hypoxia-related gene signatures for osteosarcoma diagnosis and prognosis based on WGCNA and machine learning",
+                doi: "10.1038/s41598-024-69638-3",
+                year: "2024",
+                journal: "Science reports"
+            }
+             ,
+            {
+                pmid:"37528470",
+                title:"DNA hypermethylation driven by DNMT1 and DNMT3A favors tumor immune escape contributing to the aggressiveness of adrenocortical carcinoma",
+                doi: " 10.1186/s13148-023-01534-5",
+                year: "2023",
+                journal: "Clinical epigenetics"
+            }
+            ,
+            {
+                pmid:" 37029109",
+                title:"ASPSCR1::TFE3 orchestrates the angiogenic program of alveolar soft part sarcoma",
+                doi: "10.1038/s41467-023-37049-z",
+                year: "2023",
+                journal: "nature communications ",
+                note: "Alveolar soft part sarcoma (ASPS)"
+            }
+            ,
+            {
+                pmid:" 36657718",
+                title:"SMARCB1 Loss in Poorly Differentiated Chordomas Drives Tumor Progression",
+                doi: "10.1016/j.ajpath.2022.12.012",
+                year: "2023",
+                journal: "The American journal of pathology",
+                note: "Chordoma"
+            }
+            ,
+            {
+                pmid:"36650051",
+                title:"A temporal in vivo catalog of chromatin accessibility and expression profiles in pineoblastoma reveals a prevalent role for repressor elements",
+                doi: "10.1101/gr.277037.122",
+                year: "2023",
+                journal: "Genome research",
+                note: "Pediatric pineoblastomas (PBs) "
+            }
+            ,
+            {
+                pmid:" 37400764",
+                title:"Genomic landscapes of ovarian clear cell carcinoma from latin countries reveal aberrations linked to survival and progression",
+                doi: " 10.1186/s12885-023-11095-8",
+                year: "2023",
+                journal: "BMC tumor",
+                note: "Ovarian clear cell carcinomas (OCCCs) "
+            }
+            ,
+            {
+                pmid:"36637394",
+                title:"Malignant Progression of an Ancestral Bone Marrow Clone Harboring a CIC-NUTM2A Fusion in Isolated Myeloid Sarcoma",
+                doi: " 10.1158/1541-7786.MCR-22-0544",
+                year: "2023",
+                journal: "Molecular tumor research:MCR",
+                note: "Myeloid sarcomas (MS)"
+            }
+            ,
+            {
+                pmid:"35767735",
+                title:"The identification of TCF1+ progenitor exhausted T cells in THRLBCL may predict a better response to PD-1/PD-L1 blockade",
+                doi: "10.1182/bloodadvances.2022007046",
+                year: "2022",
+                journal: "Blood advances",
+                note: "T-cell/histiocyte-rich large B-cell lymphoma (THRLBCL) "
+            }
+            ,
+            {
+                pmid:"36291828",
+                title:"Renal Medullary Carcinomas Harbor a Distinct Methylation Phenotype and Display Aberrant Methylation of Genes Related to Early Nephrogenesis",
+                doi: " 10.3390/tumors14205044",
+                year: "2022",
+                journal: "tumors",
+                note: "Renal medullary carcinomas (RMC)"
+            }
+            ,
+            {
+                pmid:"34448823",
+                title:"The molecular hallmarks of primary and secondary vitreoretinal lymphoma",
+                doi: " 10.1182/bloodadvances.2021004212",
+                year: "2022",
+                journal: "Blood advances",
+                note: "Vitreoretinal lymphoma (VRL)"
+            }
+            ,
+            {
+                pmid:" 36417130",
+                title:"Single cell profiling of γδ hepatosplenic T-cell lymphoma unravels tumor cell heterogeneity associated with disease progression",
+                doi: " 10.1007/s13402-022-00745-x",
+                year: "2023",
+                journal: "Cellular oncology(Dordrecht,Netherlands)",
+                note: "Hepatosplenic T-cell lymphoma (HSTCL)"
+            }
+            ,
+            {
+                pmid:"36213538",
+                title:"Cucurbitacin B-induced G2/M cell cycle arrest of conjunctival melanoma cells mediated by GRP78-FOXM1-KIF20A pathway",
+                doi: "10.1016/j.apsb.2022.05.021",
+                year: "2022",
+                journal: "Acta pharmaceutica Sinica.B",
+                note: "Conjunctival melanoma (CM) "
+            }
+            ,
+            {
+                pmid:"35563269",
+                title:"miR-196b-5p and miR-107 Expression Differentiates Ocular Sebaceous Carcinoma from Squamous Cell Carcinoma of the Conjunctiva",
+                doi: "10.3390/ijms23094877",
+                year: "2022",
+                journal: "International Journal of Molecular Sciences",
+                note: " Ocular Sebaceous Carcinoma (OSC)"
+            }
+            ,
+            {
+                pmid:"35342947",
+                title:"Genomic profiling identifies genes and pathways dysregulated by HEY1-NCOA2 fusion and shines a light on mesenchymal chondrosarcoma tumorigenesis",
+                doi: " 10.1002/path.5899",
+                year: "2022",
+                journal: "The Journal of Pathology",
+                note: "Mesenchymal chondrosarcoma "
+            }
+            ,
+            {
+                pmid:" 35723333",
+                title:"Analysis of Non-Relapsed and Relapsed Adult Type Granulosa Cell Tumors Suggests Stable Transcriptomes during Tumor Progression",
+                doi: "10.3390/cimb44020048",
+                year: "2022",
+                journal: "Current issues in molecular biology",
+                note: "Adult-type granulosa cell tumor (AGCT)"
+            }
+            ,
+            {
+                pmid:"35252869",
+                title:"Synergistic action of WDR5 and HDM2 inhibitors in SMARCB1-deficient tumor cells",
+                doi: " 10.1093/narcan/zcac007",
+                year: "2022",
+                journal: "NAR tumor",
+                note: "Rhabdoid tumors (RT)"
+            }
+            ,
+            {
+                pmid:" 35440587",
+                title:"Astroblastomas exhibit radial glia stem cell lineages and differential expression of imprinted and X-inactivation escape genes",
+                doi: "10.1038/s41467-022-29302-8",
+                year: "2022",
+                journal: "nature communications The Journal of experimental medicine",
+                note:"Astroblastomas (ABs)"
+              
+            }
+            ,
+            {
+                pmid:"35247927",
+                title:"Single-cell Characterization of the Cellular Landscape of Acral Melanoma Identifies Novel Targets for Immunotherapy",
+                doi: "10.1158/1078-0432.CCR-21-3145",
+                year: "2022",
+                journal: "Clinical tumor research:an official journal of the American Association for tumor Research",
+                note: "Acral melanoma"
+            }
+            ,
+            {
+                pmid:" 35318328",
+                title:"Single-cell transcriptomics identifies potential cells of origin of MYC rhabdoid tumors",
+                doi: " 10.1038/s41467-022-29152-4",
+                year: "2022",
+                journal: "nature communications ",
+                note: "Rhabdoid tumors (RT)"
+            }
+            ,
+            {
+                pmid:"35247900",
+                title:"Identification and Targeting of the Developmental Blockade in Extranodal Natural Killer/T-cell Lymphoma",
+                doi: "10.1158/2643-3230.BCD-21-0098",
+                year: "2022",
+                journal: "Blood tumor discovery",
+                note: "Extranodal natural killer/T-cell lymphoma (ENKTL)"
+            }
+            ,
+            {
+                pmid:"34903601",
+                title:"Integrated Molecular Characterization of Patient-Derived Models Reveals Therapeutic Strategies for Treating CIC-DUX4 Sarcoma",
+                doi: "10.1158/0008-5472.CAN-21-1222",
+                year: "2022",
+                journal: "tumor Research",
+                note: "Capicua-double homeobox 4 (CIC-DUX4)-rearranged sarcomas (CDS)"
+            }
+            ,
+            {
+                pmid:"36106577",
+                title:"Drug library screening identifies histone deacetylase inhibition as a novel therapeutic strategy for choriocarcinoma",
+                doi: "10.1002/cam4.5243",
+                year: "2023",
+                journal: "tumor medicine",
+                note: "Choriocarcinoma"
+            }
+            ,
+            {
+                pmid:"34697060",
+                title:"DNA Methylation Profiles of Ovarian Clear Cell Carcinoma",
+                doi: "10.1158/1055-9965.EPI-21-0677",
+                year: "2022",
+                journal: "Multicenter Study",
+                note: "Ovarian clear cell carcinoma (OCCC) "
+            }
+            ,
+            {
+                pmid:"34782706",
+                title:"Methylation profiling reveals novel molecular classes of rhabdomyosarcoma",
+                doi: "10.1038/s41598-021-01649-w",
+                year: "2021",
+                journal: "Science reports",
+                note: "Rhabdomyosarcomas (RMS)"
+            }
+            ,
+            {
+                pmid:"34868934",
+                title:"Anti-Tumor Effect of Apatinib and Relevant Mechanisms in Liposarcoma",
+                doi: "10.3389/fonc.2021.739139",
+                year: "2021",
+                journal: "Frontiers in Oncology",
+                note: "Primary retroperitoneal liposarcomas (RLPSs) "
+            }
+            ,
+            {
+                pmid:"Primary retroperitoneal liposarcomas (RLPSs) ",
+                title:"Establishment and characterization of NCC-DMM1-C1, a novel patient-derived cell line of desmoplastic malignant pleural mesothelioma",
+                doi: "10.3892/ol.2021.13182",
+                year: "2022",
+                journal: "Oncology letters",
+                note: "Desmoplastic malignant pleural mesothelioma (DMM)"
+            }
+
+
+            ,
+            {
+                pmid:"34572907",
+                title:"Newly-Discovered Neural Features Expand the Pathobiological Knowledge of Blastic Plasmacytoid Dendritic Cell Neoplasm",
+                doi: "10.3390/tumors13184680",
+                year: "2021",
+                journal: "tumors",
+                note: "Blastic plasmacytoid dendritic cell neoplasm (BPDCN)"
+            }
+            ,
+            {
+                pmid:" 34193943",
+                title:"Generation of human embryonic stem cell models to exploit the EWSR1-CREB fusion promiscuity as a common pathway of transformation in human tumors",
+                doi: "10.1038/s41388-021-01843-0",
+                year: "2021",
+                journal: "Oncogene",
+                note: "sarcoma"
+            }
+            ,
+            {
+                pmid:"34399838",
+                title:"Characterizing DNA methylation signatures and their potential functional roles in Merkel cell carcinoma",
+                doi: "10.1186/s13073-021-00946-3",
+                year: "2021",
+                journal: "Genome medicine",
+                note: " Merkel cell carcinoma (MCC)"
+            }
+            ,
+            {
+                pmid:" 34242269",
+                title:"The KrasG12D;Trp53fl/fl murine model of undifferentiated pleomorphic sarcoma is macrophage dense, lymphocyte poor, and resistant to immune checkpoint blockade",
+                doi: " 10.1371/journal.pone.0253864",
+                year: "2021",
+                journal: "PloS one",
+                note: "Sarcomas"
+            }
+            ,
+            {
+                pmid:"34478526",
+                title:"Frequent mutated B2M, EZH2, IRF8, and TNFRSF14 in primary bone diffuse large B-cell lymphoma reflect a GCB phenotype",
+                doi: "10.1182/bloodadvances.2021005215",
+                year: "2021",
+                journal: "Blood advances",
+                note: "Primary bone diffuse large B-cell lymphoma (PB-DLBCL)"
+            }
+            ,
+            {
+                pmid:"33766982",
+                title:"WWTR1(TAZ)- CAMTA1 gene fusion is sufficient to dysregulate YAP/TAZ signaling and drive epithelioid hemangioendothelioma tumorigenesis",
+                doi: "10.1101/gad.348220.120",
+                year: "2021",
+                journal: "Genes & development",
+                note: "Epithelioid hemangioendothelioma (EHE)"
+            }
+            ,
+            {
+                pmid:" 33639972",
+                title:"FOXO1 mitigates the SMAD3/FOXL2C134W transcriptomic effect in a model of human adult granulosa cell tumor",
+                doi: "10.1186/s12967-021-02754-0",
+                year: "2021",
+                journal: "Journal of translational medicine",
+                note: " Adult granulosa cell tumor (aGCT)"
+            }
+
+            ,
+            {
+                pmid:"33870422",
+                title:"Medulloblastoma in Adults: Cytogenetic Phenotypes Identify Prognostic Subgroups",
+                doi: "10.1093/jnen/nlab020",
+                year: "2021",
+                journal: "Journal of neuropathology and experimental neurology",
+                note: "Adult medulloblastomas (MB)"
+            }
+            ,
+            {
+                pmid:"33521702",
+                title:"Targeted brachyury degradation disrupts a highly specific autoregulatory program controlling chordoma cell identity",
+                doi: "10.1016/j.xcrm.2020.100188",
+                year: "2021",
+                journal: "Cell Reports Medicine",
+                note: "Chordoma"
+            }
+            ,
+            {
+                pmid:" 33501605",
+                title:"Aggresomes predict poor outcomes and implicate proteostasis in the pathogenesis of pediatric choroid plexus tumors",
+                doi: "10.1007/s11060-020-03694-3",
+                year: "2021",
+                journal: "Journal of neuro-oncology",
+                note: " choroid plexus tumors (CPT)"
+            }
+            ,
+            {
+                pmid:" 33828201",
+                title:"Fangchinoline suppresses conjunctival melanoma by directly binding FUBP2 and inhibiting the homologous recombination pathway",
+                doi: "10.1038/s41419-021-03653-4",
+                year: "2021",
+                journal: "Cell death & disease",
+                note: "Conjunctival melanoma (CM)"
+            }
+            ,
+            {
+                pmid:"32512881",
+                title:"Potential Onco-Suppressive Role of miR122 and miR144 in Uveal Melanoma through ADAM10 and C-Met Inhibition",
+                doi: "10.3390/tumors12061468",
+                year: "2020",
+                journal: "tumors",
+                note: "Uveal melanoma (UM)"
+            }
+            ,
+            {
+                pmid:"33361404",
+                title:"Glucose-6-phosphate dehydrogenase correlates with tumor immune activity and programmed death ligand-1 expression in Merkel cell carcinoma",
+                doi: " 10.1136/jitc-2020-001679",
+                year: "2020",
+                journal: "Journal for immunotherapy of tumor",
+                note: " Merkel cell carcinoma (MCC)"
+            }
+            ,
+            {
+                pmid:"35223493",
+                title:"Tertiary Lymphoid Structures and Chemokine Landscape in Virus-Positive and Virus-Negative Merkel Cell Carcinoma",
+                doi: "10.3389/fonc.2022.811586",
+                year: "2022",
+                journal: "Frontiers in Oncology",
+                note: " Merkel cell carcinoma (MCC)"
+            }
+            ,
+            {
+                pmid:"33298310",
+                title:"Immunogenomic landscape of gynecologic carcinosarcoma",
+                doi: "10.1016/j.ygyno.2020.11.030",
+                year: "2021",
+                journal: "Gynecologic oncology",
+                note: "Carcinosarcoma (CS) of the uterus or ovary"
+            }
+            ,
+            {
+                pmid:"33148256",
+                title:"Metastatic and recurrent adrenocortical tumor is not defined by its genomic landscape",
+                doi: " 10.1186/s12920-020-00809-7",
+                year: "2020",
+                journal: "BMC medical genomics",
+                note: " Adrenocortical carcinoma (ACC)"
+            }
+            ,
+            {
+                pmid:"32766159",
+                title:"Metastatic and recurrent adrenocortical tumor is not defined by its genomic landscape",
+                doi: " 10.1186/s12920-020-00809-7",
+                year: "2020",
+                journal: "BMC medical genomics",
+                note: " Adrenocortical carcinoma (ACC)"
+            }
+            ,
+            {
+                pmid:"32766159",
+                title:"Altered miRNAs Expression Correlates With Gastroenteropancreatic Neuroendocrine Tumors Grades",
+                doi: "10.3389/fonc.2020.01187",
+                year: "2020",
+                journal: "Frontiers in Oncology",
+                note: "Gastroenteropancreatic neuroendocrine tumors (GEP-NETs)"
+            }
+            ,
+            {
+                pmid:"31243333",
+                title:"Genomic and transcriptomic comparison of post-radiation versus sporadic sarcomas",
+                doi: " 10.1038/s41379-019-0300-2",
+                year: "2019",
+                journal: "Comparative Study",
+                note: "Post-radiation sarcomas "
+            }
+            ,
+            {
+                pmid:"31802236",
+                title:"Risk-adapted therapy and biological heterogeneity in pineoblastoma: integrated clinico-pathological analysis from the prospective, multi-center SJMB03 and SJYC07 trials",
+                doi: "10.1007/s00401-019-02106-9",
+                year: "2020",
+                journal: "Clinical Trial",
+                note: "Pediatric pineoblastomas (PBs)"
+            }
+            ,
+            {
+                pmid:"32240714",
+                title:"Epigenetic footprint enables molecular risk stratification of hepatoblastoma with clinical implications",
+                doi: " 10.1016/j.jhep.2020.03.025",
+                year: "2020",
+                journal: "Journal of hepatology",
+                note: " Hepatoblastoma (HB)"
+            }
+            ,
+            {
+                pmid:"32719445",
+                title:"IGF2BP1 is the first positive marker for anaplastic thyroid carcinoma diagnosis",
+                doi: "10.1038/s41379-020-0630-0",
+                year: "2021",
+                journal: "Modern Pathology",
+                note: "Anaplastic thyroid carcinomas (ATC) "
+            }
+            ,
+            {
+                pmid:" 32974204",
+                title:"Multiple Chromoanasynthesis in a Rare Case of Sporadic Renal Leiomyosarcoma: A Case Report",
+                doi: "10.3389/fonc.2020.01653",
+                year: "2020",
+                journal: "Case Reports",
+                note: "Renal leiomyosarcomas (LMS)"
+            }
+            ,
+            {
+                pmid:"32457837",
+                title:"Identification of a Splenic Marginal Zone Lymphoma Signature: Preliminary Findings With Diagnostic Potential",
+                doi: " 10.3389/fonc.2020.00640",
+                year: "2020",
+                journal: "Frontiers in Oncology",
+                note: "Splenic marginal zone lymphoma (SMZL)"
+            }
+            ,
+            {
+                pmid:"32345977",
+                title:"Desmoplastic small round cell tumor is dependent on the EWS-WT1 transcription factor",
+                doi: " 10.1038/s413Desmoplastic small round cell tumor is dependent on the EWS-WT1 transcription factor89-020-0224-1",
+                year: "2020",
+                journal: "Oncogenesis",
+                note: "Desmoplastic small round cell tumor (DSRCT)"
+            }
+            ,
+            {
+                pmid:"32012866",
+                title:"Genomic Landscape of Young-Onset Bladder tumor and Its Prognostic Implications on Adult Bladder tumor",
+                doi: "10.3390/tumors12020307",
+                year: "2020",
+                journal: "tumors",
+                note: " Young-onset bladder tumor (YBC)"
+            }
+            ,
+            {
+                pmid:" 31888295",
+                title:"Aberrant DNA Methylation Predicts Melanoma-Specific Survival in Patients with Acral Melanoma",
+                doi: "10.3390/tumors11122031",
+                year: "2019",
+                journal: "tumors",
+                note: "Acral melanoma (AM)"
+            }
+            ,
+            {
+                pmid:"30885981",
+                title:"Myc and Loss of p53 Cooperate to Drive Formation of Choroid Plexus Carcinoma",
+                doi: "10.1158/0008-5472.CAN-18-2565",
+                year: "2019",
+                journal: "tumor Research",
+                note: "Choroid plexus carcinoma (CPC)"
+            }
+            ,
+            {
+                pmid:"31980621",
+                title:"Single-cell analysis reveals new evolutionary complexity in uveal melanoma",
+                doi: "10.1038/s41467-019-14256-1",
+                year: "2020",
+                journal: "nature communications ",
+                note: "Uveal melanoma (UM) "
+            }
+            ,
+            {
+                pmid:"33792119",
+                title:"CDKN1C-mediated growth inhibition by an EZH1/2 dual inhibitor overcomes resistance of mantle cell lymphoma to ibrutinib",
+                doi: " 10.1111/cas.14905",
+                year: "2021",
+                journal: "tumor Science",
+                note: "Mantle cell lymphoma (MCL)"
+            }
+            ,
+            {
+                pmid:"31694959",
+                title:"Merkel Cell Polyomavirus Downregulates N-myc Downstream-Regulated Gene 1, Leading to Cellular Proliferation and Migration",
+                doi: "10.1128/JVI.00899-19",
+                year: "2020",
+                journal: "Journal of virology",
+                note: "Merkel cell carcinoma (MCC)"
+            }
+            ,
+            {
+                pmid:" 31488818",
+                title:"Cell-type dependent enhancer binding of the EWS/ATF1 fusion gene in clear cell sarcomas",
+                doi: "10.1038/s41467-019-11745-1",
+                year: "2019",
+                journal: "nature communications ",
+                note: "Clear cell sarcoma (CCS)"
+            }
+            ,
+            {
+                pmid:"31345789",
+                title:"Epigenomics and Single-Cell Sequencing Define a Developmental Hierarchy in Langerhans Cell Histiocytosis",
+                doi: " 10.1158/2159-8290.CD-19-0138",
+                year: "2019",
+                journal: "tumor discovery",
+                note: "Langerhans cell histiocytosis (LCH)"
+            }
+            ,
+            {
+                pmid:" 31300474",
+                title:"Integrative Genomic Characterization Identifies Molecular Subtypes of Lung Carcinoids",
+                doi: "10.1158/0008-5472.CAN-19-0214",
+                year: "2019",
+                journal: "tumor Research",
+                note: "Lung carcinoids (LC)"
+            }
+            ,
+            {
+                pmid:" 31060906",
+                title:"Potent anti-tumor efficacy of palbociclib in treatment-naïve H3.3K27M-mutant diffuse intrinsic pontine glioma",
+                doi: "10.1016/j.ebiom.2019.04.043",
+                year: "2019",
+                journal: "EBioMedicine",
+                note: "Diffuse intrinsic pontine glioma (DIPG)"
+            }
+            ,
+            {
+                pmid:"30951707",
+                title:"Distinctive role of dysregulated miRNAs in chordoma tumor stem-like cell maintenance",
+                doi: "10.1016/j.yexcr.2019.03.039",
+                year: "2019",
+                journal: "Experimental cell research",
+                note: "Chordoma"
+            }
+            ,
+            {
+                pmid:"30876455",
+                title:"Genomic analysis demonstrates that histologically-defined astroblastomas are molecularly heterogeneous and that tumors with MN1 rearrangement exhibit the most favorable prognosis",
+                doi: "10.1186/s40478-019-0689-3",
+                year: "2019",
+                journal: "Acta neuropathologica communications",
+                note: "Astroblastoma (AB)"
+            }
+            ,
+            {
+                pmid:"31622618",
+                title:"Chromosome Engineering of Human Colon-Derived Organoids to Develop a Model of Traditional Serrated Adenoma",
+                doi: "10.1053/j.gastro.2019.10.009",
+                year: "2020",
+                journal: "Gastroenterology",
+                note: "Traditional serrated adenomas (TSAs) "
+            }
+            ,
+            {
+                pmid:"30848346",
+                title:"SHH medulloblastoma in a young adult with a TCF4 germline pathogenic variation",
+                doi: "10.1007/s00401-019-01983-4",
+                year: "2019",
+                journal: "Case Reports",
+                note: "Medulloblastoma (MB)"
+            }
+            ,
+            {
+                pmid:"30257227",
+                title:"Global methylation patterns in primary plasma cell leukemia",
+                doi: "10.1016/j.leukres.2018.09.007",
+                year: "2018",
+                journal: "Leukemia research",
+                note: "Primary plasma cell leukemia (pPCL)"
+            }
+            ,
+            {
+                pmid:" 30310175",
+                title:"BCAT1 and miR-2504: novel methylome signature distinguishes spindle/desmoplastic melanoma from superficial malignant peripheral nerve sheath tumor",
+                doi: "BCAT1 and miR-2504: novel methylome signature distinguishes spindle/desmoplastic melanoma from superficial malignant peripheral nerve sheath tumor",
+                year: "2019",
+                journal: "Modern Pathology",
+                note: "Superficial/cutaneous malignant peripheral nerve sheath tumor (c-MPNST)"
+            }
+            ,
+            {
+                pmid:"29795241",
+                title:"Recurrent 8q24 rearrangement in blastic plasmacytoid dendritic cell neoplasm: association with immunoblastoid cytomorphology, MYC expression, and drug response",
+                doi: "10.1038/s41375-018-0154-5",
+                year: "2018",
+                journal: "Leukemia",
+                note: "Blastic plasmacytoid dendritic cell neoplasm (BPDCN) "
+            }
+            ,
+            {
+                pmid:"29758070",
+                title:"Rapamycin-independent IGF2 expression in Tsc2-null mouse embryo fibroblasts and human lymphangioleiomyomatosis cells",
+                doi: " 10.1371/journal.pone.0197105",
+                year: "2018",
+                journal: "PloS one",
+                note: "Lymphangioleiomyomatosis (LAM) "
+            }
+            ,
+            {
+                pmid:"29556019",
+                title:"High-throughput sequencing of nodal marginal zone lymphomas identifies recurrent BRAF mutations",
+                doi: "10.1038/s41375-018-0082-4",
+                year: "2018",
+                journal: "Leukemia",
+                note: "Nodal marginal zone lymphoma (NMZL)"
+            }
+            ,
+            {
+                pmid:" 28627792",
+                title:"β-Catenin in desmoid-type fibromatosis: deep insights into the role of T41A and S45F mutations on protein structure and gene expression",
+                doi: " 10.1002/1878-0261.12101",
+                year: "2017",
+                journal: "Molecular oncology",
+                note: "Desmoid-type fibromatosis (DF)"
+            }
+            ,
+            {
+                pmid:" 31477684",
+                title:"NCAM1/FGF module serves as a putative pleuropulmonary blastoma therapeutic target",
+                doi: " 10.1038/s41389-019-0156-9",
+                year: "2019",
+                journal: "Oncogenesis",
+                note: "Pleuropulmonary blastoma (PPB)"
+            }
+            ,
+            {
+                pmid:" 29449575",
+                title:"Actionable perturbations of damage responses by TCL1/ATM and epigenetic lesions form the basis of T-PLL",
+                doi: "10.1038/s41467-017-02688-6",
+                year: "2018",
+                journal: "nature communications ",
+                note: "T-cell prolymphocytic leukemia (T-PLL) "
+            }
+            ,
+            {
+                pmid:"28733977",
+                title:"Molecular classification of tumour cells in a patient with intravascular large B-cell lymphoma",
+                doi: "10.1111/bjd.15841",
+                year: "2018",
+                journal: "Case Reports",
+                note: "Intravascular large B-cell lymphoma (IVLBCL)"
+            }
+            ,
+            {
+                pmid:" 29636883",
+                title:"The embryonic transcription factor Brachyury confers chordoma chemoresistance via upregulating CA9",
+                doi: "PMC5883134",
+                year: "2018",
+                journal: "American journal of translational research",
+                note: "Chordoma"
+            }
+            ,
+            {
+                pmid:"28892064",
+                title:"A mouse model for embryonal tumors with multilayered rosettes uncovers the therapeutic potential of Sonic-hedgehog inhibitors",
+                doi: " 10.1038/nm.4402",
+                year: "2017",
+                journal: "Nature medicine",
+                note: "Embryonal tumors with multilayered rosettes (ETMRs)"
+            }
+            ,
+            {
+                pmid:" 28596515",
+                title:"Characterization of a new murine cell line of sarcomatoid hepatocellular carcinoma and its application for biomarker/therapy development",
+                doi: "10.1038/s41598-017-03164-3",
+                year: "2017",
+                journal: "Scientific reports",
+                note: "Sarcomatoid hepatocellular carcinoma (SHC) "
+            }
+            ,
+            {
+                pmid:"28146424",
+                title:"Up-regulation of tumor suppressor genes by exogenous dhC16-Cer contributes to its anti-tumor activity in primary effusion lymphoma",
+                doi: "10.18632/oncotarget.14838",
+                year: "2017",
+                journal: "Oncotarget",
+                note: "Primary effusion lymphoma (PEL)"
+            }
+            ,
+            {
+                pmid:" 28486549",
+                title:"Genome and transcriptome profiling of fibrolamellar hepatocellular carcinoma demonstrates p53 and IGF2BP1 dysregulation",
+                doi: "10.1371/journal.pone.0176562",
+                year: "2017",
+                journal: "PloS one",
+                note: "Fibrolamellar hepatocellular carcinoma (FL-HCC) "
+            }
+            ,
+            {
+                pmid:"28418912",
+                title:"Human microRNA expression in sporadic and FAP-associated desmoid tumors and correlation with beta-catenin mutations",
+                doi: "10.18632/oncotarget.16383",
+                year: "2017",
+                journal: "Oncotarget",
+                note: "Desmoid tumors (DT)"
+            }
+            ,
+            {
+                pmid:"28130401",
+                title:"Distinctive Histogenesis and Immunological Microenvironment Based on Transcriptional Profiles of Follicular Dendritic Cell Sarcomas",
+                doi: "10.1158/1541-7786.MCR-16-0301",
+                year: "2017",
+                journal: "Comparative Study",
+                note: "Follicular dendritic cell (FDC) "
+            }
+            ,
+            {
+                pmid:"28174417",
+                title:"AMKL chimeric transcription factors are potent inducers of leukemia",
+                doi: " 10.1038/leu.2017.51",
+                year: "2017",
+                journal: "Leukemia",
+                note: "Acute megakaryoblastic leukemia in patients without Down syndrome"
+            }
+ ,
+            {
+                pmid:"27775819",
+                title:"Genomic analysis of hepatoblastoma identifies distinct molecular and prognostic subgroups",
+                doi: " 10.1002/hep.28888",
+                year: "2017",
+                journal: "Hepatology",
+                note: "Hepatoblastoma (HB)"
+            }
+            ,
+            {
+                pmid:"32850008",
+                title:"Obinutuzumab (GA101) vs. rituximab significantly enhances cell death, antibody-dependent cytotoxicity and improves overall survival against CD20+ primary mediastinal B-cell lymphoma (PMBL) in a xenograft NOD-scid IL2Rgnull (NSG) mouse model: a potential targeted agent in the treatment of PMBL",
+                doi: " 10.18632/oncotarget.27691",
+                year: "2020",
+                journal: "Oncotarget",
+                note: "Primary mediastinal large B-cell lymphoma (PMBL)"
+            }
+            ,
+            {
+                pmid:" 27364557",
+                title:"Activation of Wnt/尾-Catenin in Ewing Sarcoma Cells Antagonizes EWS/ETS Function and Promotes Phenotypic Transition to More Metastatic Cell States",
+                doi: " 10.1158/0008-5472.CAN-15-3422",
+                year: "2016",
+                journal: "tumor Research",
+                note: "Ewing sarcomas"
+            }
+            ,
+            {
+                pmid:"27519597",
+                title:"A germline mutation of CDKN2A and a novel RPLP1-C19MC fusion detected in a rare melanotic neuroectodermal tumor of infancy: a case report",
+                doi: "10.1186/s12885-016-2669-3",
+                year: "2016",
+                journal: "Case Reports",
+                note: "Melanotic neuroectodermal tumor of infancy (MNTI)"
+            }
+            ,
+            {
+                pmid:"30307528",
+                title:"A global transcriptomic pipeline decoding core network of genes involved in stages leading to acquisition of drug-resistance to cisplatin in osteosarcoma cells",
+                doi: " 10.1093/bioinformatics/bty868",
+                year: "2019",
+                journal: "Bioinformatics",
+                note: "Osteosarcoma (OS)"
+            }
+            ,
+            {
+                pmid:"31690262",
+                title:"Transcriptomic analysis associated with reversal of cisplatin sensitivity in drug resistant osteosarcoma cells after a drug holiday",
+                doi: "10.1186/s12885-019-6300-2",
+                year: "2019",
+                journal: "BMC tumor",
+                note: "Osteosarcoma (OS)"
+            }
+            ,
+            {
+                pmid:" 27655340",
+                title:"Genomic analysis of the molecular neuropathology of tuberous sclerosis using a human stem cell model",
+                doi: " 10.1186/s13073-016-0347-3",
+                year: "2016",
+                journal: "Genome medicine",
+                note: " Tuberous sclerosis complex (TSC)"
+            }
+            ,
+            {
+                pmid:"26523470",
+                title:"Insights into genetic alterations of liver metastases from uveal melanoma",
+                doi: " 10.1111/pcmr.12433",
+                year: "2016",
+                journal: "Pigment cell& melanoma research",
+                note: "metastatic uveal melanoma (MUM)"
+            }
+            ,
+            {
+                pmid:"26963385",
+                title:"Pathway Implications of Aberrant Global Methylation in Adrenocortical tumor",
+                doi: " 10.1371/journal.pone.0150629",
+                year: "2016",
+                journal: "PloS one",
+                note: " Adrenocortical carcinomas (ACC)"
+            }
+            ,
+            {
+                pmid:"26974205",
+                title:"A porcine model of osteosarcoma",
+                doi: " 10.1038/oncsis.2016.19",
+                year: "2016",
+                journal: "Oncogenesis",
+                note: "Osteosarcoma (OS)"
+            }
+            ,
+            {
+                pmid:"26999738",
+                title:"Sonic Hedgehog promotes proliferation of Notch-dependent monociliated choroid plexus tumour cells",
+                doi: "10.1038/ncb3327",
+                year: "2016",
+                journal: "Nature cell biology",
+                note: " choroid plexus tumors (CPT)"
+            }
+            ,
+            {
+                pmid:"27335277",
+                title:"The genetics of nodal marginal zone lymphoma",
+                doi: " 10.1182/blood-2016-02-696757",
+                year: "2016",
+                journal: "Blood",
+                note: "Nodal marginal zone lymphoma (NMZL)"
+            }
+            ,
+            {
+                pmid:"17234769",
+                title:"Gene expression profiling of childhood adrenocortical tumors",
+                doi: " 10.1158/0008-5472.CAN-06-3767",
+                year: "2007",
+                journal: "tumor Research",
+                note: "Pediatric adrenocortical tumors (ACT) "
+            }
+            ,
+            {
+                pmid:"26396249",
+                title:"HDAC Inhibition for the Treatment of Epithelioid Sarcoma: Novel Cross Talk Between Epigenetic Components",
+                doi: "10.1158/1541-7786.MCR-15-0295",
+                year: "2016",
+                journal: "Molecular tumor research:MCR",
+                note: "Epithelioid sarcoma"
+            }
+            ,
+            {
+                pmid:"26349011",
+                title:"Targeting the Notch pathway: A potential therapeutic approach for desmoid tumors",
+                doi: " 10.1002/cncr.29564",
+                year: "2015",
+                journal: "tumor",
+                note: "Desmoid tumors (DTs)"
+            }
+            ,
+            {
+                pmid:" 26205622",
+                title:"Distinctive genotypes in infants with T-cell acute lymphoblastic leukaemia",
+                doi: "10.1111/bjh.13613",
+                year: "2015",
+                journal: "British journal of haematology",
+                note: "Infant T-cell acute lymphoblastic leukaemia (iT-ALL)"
+            }
+            ,
+            {
+                pmid:"26371886",
+                title:"Molecular Profiling of a Rare Rosette-Forming Glioneuronal Tumor Arising in the Spinal Cord",
+                doi: "10.1371/journal.pone.0137690",
+                year: "2015",
+                journal: "Case Reports",
+                note: "Rosette-forming glioneuronal tumor (RGNT)"
+            }
+            ,
+            {
+                pmid:"25915942",
+                title:"MicroRNA-27a Contributes to Rhabdomyosarcoma Cell Proliferation by Suppressing RARA and RXRA",
+                doi: "10.1371/journal.pone.0125171",
+                year: "2015",
+                journal: "PloS one",
+                note: "Rhabdomyosarcomas (RMS)"
+            }
+            ,
+            {
+                pmid:"23959973",
+                title:"Identification of a novel, recurrent MBTD1-CXorf67 fusion in low-grade endometrial stromal sarcoma",
+                doi: "10.1002/ijc.28440",
+                year: "2014",
+                journal: "International journal of tumor",
+                note: "Endometrial stromal sarcomas (ESSs)"
+            }
+            ,
+            {
+                pmid:"28938490",
+                title:"Expression of Contactin 4 Is Associated With Malignant Behavior in Pheochromocytomas and Paragangliomas",
+                doi: "10.1210/jc.2017-01314",
+                year: "2018",
+                journal: "The Journal of clinical endocrinology and metabolism",
+                note: "Pheochromocytomas and paragangliomas (PPGLs) "
+            }
+            ,
+            {
+                pmid:"25557953",
+                title:"Unique genomic profile of fibrolamellar hepatocellular carcinoma",
+                doi: " 10.1053/j.gastro.2014.12.028",
+                year: "2015",
+                journal: "Gastroenterology",
+                note: " Fibrolamellar hepatocellular carcinoma (FLC)"
+            }
+            ,
+            {
+                pmid:" 25675381",
+                title:"Aberrant lipid metabolism in anaplastic thyroid carcinoma reveals stearoyl CoA desaturase 1 as a novel therapeutic target",
+                doi: "10.1210/jc.2014-2764",
+                year: "2015",
+                journal: "The Journal of clinical endocrinology and metabolism",
+                note: "Anaplastic Thyroid Carcinoma（ATC）"
+            }
+            ,
+            {
+                pmid:"25418579",
+                title:"Generation of a murine hepatic angiosarcoma cell line and reproducible mouse tumor model",
+                doi: " 10.1038/labinvest.2014.141",
+                year: "2015",
+                journal: "Laboratory investigation;a journal of technical methods and pathology",
+                note: "Hepatic angiosarcoma (AS)"
+            }
+            ,
+            {
+                pmid:"24934812",
+                title:"EWS-WT1 oncoprotein activates neuronal reprogramming factor ASCL1 and promotes neural differentiation",
+                doi: "10.1158/0008-5472.CAN-13-3663",
+                year: "2014",
+                journal: "tumor Research",
+                note: "desmoplastic small round-cell tumors (DSRCT)"
+            }
+            ,
+            {
+                pmid:"25057852",
+                title:"Integrative genomic and transcriptomic analysis identified candidate genes implicated in the pathogenesis of hepatosplenic T-cell lymphoma",
+                doi: "10.1371/journal.pone.0102977",
+                year: "2014",
+                journal: "PloS one",
+                note: "Hepatosplenic T-cell lymphoma (HSTL)"
+            }
+            ,
+            {
+                pmid:"26462278",
+                title:"Novel variant of EATL evolving from mucosal γδ-T-cells in a patient with type I RCD",
+                doi: " 10.1136/bmjgast-2014-000026",
+                year: "2015",
+                journal: "BMJ Open gastroenterology",
+                note: "Enteropathy associated T-cell lymphoma (EATL) "
+            }
+            ,
+            {
+                pmid:" 24223206",
+                title:"A novel chordoma xenograft allows in vivo drug testing and reveals the importance of NF-κB signaling in chordoma biology",
+                doi: "10.1371/journal.pone.0079950",
+                year: "2013",
+                journal: "PloS one",
+                note: "Chordoma"
+            }
+            ,
+            {
+                pmid:"24378831",
+                title:"Human osteosarcoma cells respond to sorafenib chemotherapy by downregulation of the tumor progression factors S100A4, CXCR4 and the oncogene FOS",
+                doi: "10.3892/or.2013.2954",
+                year: "2014",
+                journal: "Oncology reports",
+                note: "Osteosarcoma "
+            }
+            ,
+            {
+                pmid:"24423316",
+                title:"Cell cycle deregulation and TP53 and RAS mutations are major events in poorly differentiated and undifferentiated thyroid carcinomas",
+                doi: " 10.1210/jc.2013-1512",
+                year: "2014",
+                journal: "The Journal of clinical endocrinology and metabolism",
+                note: "Anaplastic thyroid carcinomas (ATCs) "
+            }
+            ,
+            {
+                pmid:" 24129240",
+                title:"Variability in functional p53 reactivation by PRIMA-1(Met)/APR-246 in Ewing sarcoma",
+                doi: "10.1038/bjc.2013.635",
+                year: "2013",
+                journal: "British journal of tumor",
+                note: "Ewing sarcoma (EwS)"
+            }
+            ,
+            {
+                pmid:"24503940",
+                title:"Resolving tumor heterogeneity: genes involved in chordoma cell development identified by low-template analysis of morphologically distinct cells",
+                doi: "10.1371/journal.pone.0087663",
+                year: "2014",
+                journal: "PloS one",
+                note: "Chordoma"
+            }
+            ,
+            {
+                pmid:"23619563",
+                title:"Mutations and prognosis in primary myelofibrosis",
+                doi: "10.1038/leu.2013.119",
+                year: "2013",
+                journal: "Leukemia",
+                note: "Patient outcome in primary myelofibrosis (PMF)"
+            }
+            ,
+            {
+                pmid:"25097177",
+                title:"miRNA-mRNA integrative analysis in primary myelofibrosis CD34+ cells: role of miR-155/JARID2 axis in abnormal megakaryopoiesis",
+                doi: "10.1182/blood-2013-12-544197",
+                year: "2014",
+                journal: "Blood",
+                note: "Primary myelofibrosis (PMF)"
+            }
+            ,
+            {
+                pmid:"28423484",
+                title:"miR-494-3p overexpression promotes megakaryocytopoiesis in primary myelofibrosis hematopoietic stem/progenitor cells by targeting SOCS6",
+                doi: "10.18632/oncotarget.15226",
+                year: "2017",
+                journal: "Oncotarget",
+                note: "Primary myelofibrosis (PMF)"
+            }
+            ,
+            {
+                pmid:"26547506",
+                title:"Integrative analysis of copy number and gene expression data suggests novel pathogenetic mechanisms in primary myelofibrosis",
+                doi: "10.1002/ijc.29920",
+                year: "2016",
+                journal: "International journal of tumor",
+                note: "Primary myelofibrosis (PMF)"
+            }
+            ,
+            {
+                pmid:" 22711821",
+                title:"Mouse model of endemic Burkitt translocations reveals the long-range boundaries of Ig-mediated oncogene deregulation",
+                doi: " 10.1073/pnas.1200106109",
+                year: "2012",
+                journal: "Proceedings of the National Academy of Sciences of the United States of America"
+               
+            }
+            ,
+            {
+                pmid:"23660872",
+                title:"Integrative analysis of miRNA and mRNA expression profiles in pheochromocytoma and paraganglioma identifies genotype-specific markers and potentially regulated pathways",
+                doi: "10.1530/ERC-12-0183",
+                year: "2013",
+                journal: "Endocrine-related tumor"
+            }
+            ,
+            {
+                pmid:"23613318",
+                title:"Biological and clinical relevance of miRNA expression signatures in primary plasma cell leukemia",
+                doi: "10.1158/1078-0432.CCR-12-2043",
+                year: "2013",
+                journal: "Clinical tumor research:an official journal of the American Association for tumor Research",
+                note: "Primary plasma cell leukemia (pPCL) "
+            }
+            ,
+            {
+                pmid:"26046463",
+                title:"Whole-exome sequencing of primary plasma cell leukemia discloses heterogeneous mutational patterns",
+                doi: "10.18632/oncotarget.4028",
+                year: "2015",
+                journal: "Clinical Trial",
+                note: "Primary plasma cell leukemia (pPCL) "
+            }
+            ,
+            {
+                pmid:"23807211",
+                title:"Antitumoral effects of 9-cis retinoic acid in adrenocortical tumor",
+                doi: " 10.1007/s00018-013-1408-z",
+                year: "2014",
+                journal: "Cellular and molecular life sciences:CMLS",
+                note: "Adrenocortical carcinoma (ACC)"
+            }
+            ,
+            {
+                pmid:" 23339462",
+                title:"MicroRNA paraffin-based studies in osteosarcoma reveal reproducible independent prognostic profiles at 14q32",
+                doi: "10.1186/gm406",
+                year: "2013",
+                journal: "Genome medicine",
+                note: "Osteosarcoma (OS)"
+            }
+            ,
+            {
+                pmid:"38946948",
+                title:"A dynamic microRNA profile that tracks a chemotherapy resistance phenotype in osteosarcoma. Implications for novel therapeutics",
+                doi: " 10.1101/2024.06.19.24309087",
+                year: "2024",
+                journal: "medRxiv:the preprint server for health sciences",
+                note: "Osteosarcoma (OS)"
+            }
+            ,
+            {
+                pmid:"23428643",
+                title:"Gene expression profiling of primary canine insulinomas and their metastases",
+                doi: "10.1016/j.tvjl.2013.01.021",
+                year: "2013",
+                journal: "Veterinary journal ",
+                note: "Insulinomas (INS)"
+            }
+            ,
+            {
+                pmid:"23044976",
+                title:"Genome-wide analysis of primary plasma cell leukemia identifies recurrent imbalances associated with changes in transcriptional profiles",
+                doi: "10.1002/ajh.23339",
+                year: "2013",
+                journal: "Clinical Trial",
+                note: "Primary plasma cell leukemia (pPCL) "
+            }
+            ,
+            {
+                pmid:"22002331",
+                title:"Establishment and detailed functional and molecular genetic characterisation of a novel sacral chordoma cell line, MUG-Chor1",
+                doi: " 10.3892/ijo.2011.1235",
+                year: "2012",
+                journal: "Case Reports",
+                note: "Chordomas"
+            }
+            ,
+            {
+                pmid:"22640921",
+                title:"A systems biology approach reveals common metastatic pathways in osteosarcoma",
+                doi: "10.1186/1752-0509-6-50",
+                year: "2012",
+                journal: "BMC systems biology",
+                note: "Osteosarcoma (OS)"
+            }
+            ,
+            {
+                pmid:"22327514",
+                title:"Common variants near TARDBP and EGR2 are associated with susceptibility to Ewing sarcoma",
+                doi: " 10.1038/ng.1085",
+                year: "2012",
+                journal: "Nature genetics",
+                note: "Ewing sarcoma"
+            }
+            ,
+            {
+                pmid:" 22343890",
+                title:"Clonal selection drives genetic divergence of metastatic medulloblastoma",
+                doi: "10.1038/nature10825",
+                year: "2012",
+                journal: "Nature",
+                note: "Medulloblastoma (MB)"
+            }
+            ,
+            {
+                pmid:" 22042973",
+                title:"Genomic and molecular characterization of malignant peripheral nerve sheath tumor identifies the IGF1R pathway as a primary target for treatment",
+                doi: " 10.1158/1078-0432.CCR-11-1707",
+                year: "2011",
+                journal: "Multicenter Study",
+                note: "Malignant nerve sheath tumors (MPNST)"
+            }
+            ,
+            {
+                pmid:" 21996728",
+                title:"Reprogramming of mesenchymal stem cells by the synovial sarcoma-associated oncogene SYT-SSX2",
+                doi: "10.1038/onc.2011.418",
+                year: "2012",
+                journal: "Oncogene",
+                note: "The synovial sarcoma (SS)"
+            }
+            ,
+            {
+                pmid:"22594313",
+                title:"Genome-wide recruitment to Polycomb-modified chromatin and activity regulation of the synovial sarcoma oncogene SYT-SSX2",
+                doi: " 10.1186/1471-2164-13-189",
+                year: "2012",
+                journal: "BMC genomics",
+                note: "The synovial sarcoma (SS)"
+            }
+            ,
+            {
+                pmid:"22802421",
+                title:"Increased immune gene expression and immune cell infiltration in high-grade astrocytoma distinguish long-term from short-term survivors",
+                doi: " 10.4049/jimmunol.1103373",
+                year: "2012",
+                journal: "Journal of immunology",
+                note: "high-grade astrocytoma (HGA) "
+            }
+            ,
+            {
+                pmid:"21555877",
+                title:"Molecular cytogenetic analysis of a gliosarcoma with osseous metaplasia",
+                doi: " 10.1159/000326804",
+                year: "2011",
+                journal: "Case Reports",
+                note: "Gliosarcoma"
+            }
+            ,
+            {
+                pmid:"21179087",
+                title:"Oncogenically active MYD88 mutations in human lymphoma",
+                doi: " 10.1038/nature09671",
+                year: "2011",
+                journal: "Nature",
+                note: "diffuse large B-cell lymphoma (DLBCL) "
+            }
+            ,
+            {
+                pmid:" 21683982",
+                title:"Multiple chromosomal monosomies are characteristic of giant cell ependymoma",
+                doi: " 10.1016/j.humpath.2011.02.012",
+                year: "2011",
+                journal: "Case Reports",
+                note: "Giant cell ependymoma"
+            }
+            ,
+            {
+                pmid:"19962671",
+                title:"Frequent amplification of a chr19q13.41 microRNA polycistron in aggressive primitive neuroectodermal brain tumors",
+                doi: "10.1016/j.ccr.2009.10.025",
+                year: "2009",
+                journal: "tumor Cell",
+                note: "Primitive neuro-ectodermal tumours (PNET)"
+            }
+            ,
+            {
+                pmid:" 20685895",
+                title:"Coactivated platelet-derived growth factor receptor {alpha} and epidermal growth factor receptor are potential therapeutic targets in intimal sarcoma",
+                doi: "10.1158/0008-5472.CAN-10-1543",
+                year: "2010",
+                journal: "tumor Research",
+                note: "Intimal sarcoma (IS)"
+            }
+            ,
+            {
+                pmid:"20448109",
+                title:"MicroRNA expression in Sezary syndrome: identification, function, and diagnostic potential",
+                doi: "10.1182/blood-2009-12-256719",
+                year: "2010",
+                journal: "Blood",
+                note: "Sézary syndrome (SzS)"
+            }
+
+            ,
+            {
+                pmid:" 18794340",
+                title:"Origin and pathogenesis of nodular lymphocyte-predominant Hodgkin lymphoma as revealed by global gene expression analysis",
+                doi: "10.1084/jem.20080809",
+                year: "2008",
+                journal: "The Journal of experimental medicine"
+            
+            },
+            {
+                pmid:"18604193",
+                title:"Heterogeneous genetic profiles in soft tissue myoepitheliomas",
+                doi: "10.1038/modpathol.2008.124",
+                year: "2008",
+                journal: "Modern Pathology",
+                note: "Myoepithelioma"
+            }
+            ,
+            {
+                pmid:" 17713554",
+                title:"Combined single nucleotide polymorphism-based genomic mapping and global gene expression profiling identifies novel chromosomal imbalances, mechanisms and candidate genes important in the pathogenesis of T-cell prolymphocytic leukemia with inv(14)(q11q32)",
+                doi: "10.1038/sj.leu.2404877",
+                year: "2007",
+                journal: "Leukemia",
+                note: "T-cell prolymphocytic leukemia (T-PLL)"
+            }
+            ,
+            {
+                pmid:"19750229",
+                title:"A comprehensive microarray-based DNA methylation study of 367 hematological neoplasms",
+                doi: " 10.1371/journal.pone.0006986",
+                year: "2007",
+                journal: "PloS one",
+                note: "T-cell prolymphocytic leukemia (T-PLL)"
+            }
+            ,
+            {
+                pmid:"39198430",
+                title:"EWS-WT1 fusion isoforms establish oncogenic programs and therapeutic vulnerabilities in desmoplastic small round cell tumors",
+                doi: "10.1038/s41467-024-51851-3",
+                year: "2024",
+                journal: "nature communications ",
+                note: "Desmoplastic Small Round Cell Tumor (DSRCT)"
+            }
+            ,
+            {
+                pmid:"38826330",
+                title:"Seclidemstat blocks the transcriptional function of multiple FET-fusion oncoproteins",
+                doi: " 10.1101/2024.05.19.594897",
+                year: "2024",
+                journal: "bioRxiv:the preprint server for biology",
+                note: "Desmoplastic Small Round Cell Tumor (DSRCT)"
+            }
+            ,
+            {
+                pmid:"38588409",
+                title:"Comprehensive Transcriptomic Analysis of EWSR1::WT1 Targets Identifies CDK4/6 Inhibitors as an Effective Therapy for Desmoplastic Small Round Cell Tumors",
+                doi: "10.1158/0008-5472.CAN-23-3334",
+                year: "2024",
+                journal: "tumor Research",
+                note: "Desmoplastic Small Round Cell Tumor (DSRCT)"
+            }
+            ,
+            {
+                pmid:" 35443736",
+                title:"Salt-Inducible Kinase 1 is a potential therapeutic target in Desmoplastic Small Round Cell Tumor",
+                doi: " 10.1038/s41389-022-00395-6",
+                year: "2022",
+                journal: "Oncogenesis",
+                note: "Desmoplastic Small Round Cell Tumor (DSRCT)"
+            }
+
+            ,
+            {
+                pmid:"35650195",
+                title:"The androgen receptor is a therapeutic target in desmoplastic small round cell sarcoma",
+                doi: "10.1038/s41467-022-30710-z",
+                year: "2022",
+                journal: "nature communications ",
+                note: "Desmoplastic Small Round Cell Tumor (DSRCT)"
+            }
+            ,
+            {
+                pmid:" 28415643",
+                title:"New transcriptional-based insights into the pathogenesis of desmoplastic small round cell tumors (DSRCTs)",
+                doi: "10.18632/oncotarget.16477",
+                year: "2017",
+                journal: "Oncotarget",
+                note: "Desmoplastic Small Round Cell Tumor (DSRCT)"
+            }
+            ,
+            {
+                pmid:"33509126",
+                title:"SMAD4 haploinsufficiency in small intestinal neuroendocrine tumors",
+                doi: "10.1186/s12885-021-07786-9",
+                year: "2021",
+                journal: "BMC tumor",
+                note: "Small intestinal neuroendocrine tumors (siNETs)"
+            }
+            ,
+            {
+                pmid:"26169971",
+                title:"Prognostic Impact of Novel Molecular Subtypes of Small Intestinal Neuroendocrine Tumor",
+                doi: " 10.1158/1078-0432.CCR-15-0373",
+                year: "2016",
+                journal: "Clinical tumor research:an official journal of the American Association for tumor Research",
+                note: "Small intestinal neuroendocrine tumors (siNETs)"
+            }
+            ,
+            {
+                pmid:"28049633",
+                title:"Progressive epigenetic dysregulation in neuroendocrine tumour liver metastases",
+                doi: " 10.1530/ERC-16-0419",
+                year: "2017",
+                journal: "Endocrine-related tumor",
+                note: "Small intestinal neuroendocrine tumors (siNETs)"
+            }
+            ,
+            {
+                pmid:"26965582",
+                title:"Expression profiling of small intestinal neuroendocrine tumors identifies subgroups with clinical relevance, prognostic markers and therapeutic targets",
+                doi: " 10.1038/modpathol.2016.48",
+                year: "2016",
+                journal: "Modern Pathology",
+                note: "Small intestinal neuroendocrine tumors (siNETs)"
+            }
+            ,
+            {
+                pmid:" 31954539",
+                title:"Whole transcriptome analysis of gestational trophoblastic neoplasms reveals altered PI3K signaling pathway in epithelioid trophoblastic tumor",
+                doi: " 10.1016/j.ygyno.2019.09.022",
+                year: "2020",
+                journal: "Gynecologic oncology",
+                note: "A placental site trophoblastic tumor (PSTT)"
+            }
+            ,
+            {
+                pmid:"22460905",
+                title:"The tumor Cell Line Encyclopedia enables predictive modelling of antitumor drug sensitivity",
+                doi: " 10.1038/nature11003",
+                year: "2012",
+                journal: "Nature",
+                note: "Renal leiomyosarcomas (LMS)"
+            }
+            ,
+            {
+                pmid:"28088687",
+                title:"Whole-Genome DNA Methylation Profiling Identifies Epigenetic Signatures of Uterine Carcinosarcoma",
+                doi: " 10.1016/j.neo.2016.12.009",
+                year: "2017",
+                journal: "Neoplasia",
+                note: "Uterine carcinosarcomas (UCS)"
+            }
+            ,
+            {
+                pmid:"33768568",
+                title:"A Mouse Model of Cholangiocarcinoma Uncovers a Role for Tensin-4 in Tumor Progression",
+                doi: "10.1002/hep.31834",
+                year: "2021",
+                journal: "Hepatology",
+                note: " intraductal papillary neoplasm of the bile duct (IPNB)"
+            }
+            ,
+            {
+                pmid:"33468537",
+                title:"Integrative analysis reveals early and distinct genetic and epigenetic changes in intraductal papillary and tubulopapillary cholangiocarcinogenesis",
+                doi: " 10.1136/gutjnl-2020-322983",
+                year: "2022",
+                journal: "Gut",
+                note: " intraductal papillary neoplasm of the bile duct (IPNB)"
+            }
+            ,
+            {
+                pmid:"33626352",
+                title:"Inhibition of FGF10-ERK signal activation suppresses intraductal papillary neoplasm of the bile duct and its associated carcinomas",
+                doi: " 10.1016/j.celrep.2021.108772",
+                year: "2021",
+                journal: "Cell Reports ",
+                note: " intraductal papillary neoplasm of the bile duct (IPNB)"
+            }
+            ,
+            {
+                pmid:"30385735",
+                title:"Comprehensive Analysis of Long Noncoding RNAs and Messenger RNAs Expression Profiles in Patients with Marjolin Ulcer",
+                doi: " 10.12659/MSM.911177",
+                year: "2018",
+                journal: "Medical science monitor",
+                note: "Marjolin's ulcer "
+            }
+            ,
+            {
+                pmid:"36841178",
+                title:"Molecular Evidence for Olfactory Neuroblastoma as a Tumor of Malignant Globose Basal Cells",
+                doi: " 10.1016/j.modpat.2023.100122",
+                year: "2023",
+                journal: "Modern Pathology",
+                note: "olfactory neuroblastoma (ONB)"
+            }
+            ,
+            {
+                pmid:"35494237",
+                title:"Rapid fluorescent vital imaging of olfactory epithelium",
+                doi: " 10.1016/j.isci.2022.104222",
+                year: "2022",
+                journal: "iScience",
+                note: "olfactory neuroblastoma (ONB)"
+            }
+            ,
+            {
+                pmid:"39207122",
+                title:"Meningeal solitary fibrous tumor cell states phenocopy cerebral vascular development and homeostasis",
+                doi: " 10.1093/neuonc/noae172",
+                year: "2025",
+                journal: "Neuro-Oncology",
+                note: "Solitary Fibrous Tumors (SFTs)"
+            }
+            ,
+            {
+                pmid:"39939590",
+                title:"DNA immunotherapy for recurrent respiratory papillomatosis (RRP): phase 1/2 study assessing efficacy, safety, and immunogenicity of INO-3107",
+                doi: "10.1038/s41467-025-56729-6",
+                year: "2025",
+                journal: "Clinical Trial",
+                note: "Recurrent Respiratory Papillomatosis(RRP)"
+            }
+              ,
+            {
+                pmid:"32923859",
+                title:"DNA Methylation Profiling Reveals Prognostically Significant Groups in Pediatric Adrenocortical Tumors: A Report From the International Pediatric Adrenocortical Tumor Registry",
+                doi: "10.1200/PO.19.00163",
+                year: "2019",
+                journal: "JCO Precis Oncol"
+            }
+
+        ];
+
+        // DOM Elements
+        const pubContainer = document.getElementById('pubContainer');
+        const searchInput = document.getElementById('searchInput');
+        const yearFilter = document.getElementById('yearFilter');
+        const tumorFilter = document.getElementById('tumorFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const resetFilters = document.getElementById('resetFilters');
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        const pageNumbers = document.getElementById('pageNumbers');
+        const visibleCount = document.getElementById('visibleCount');
+        const totalCount = document.getElementById('totalCount');
+        const yearRange = document.getElementById('yearRange');
+        const tumorTypes = document.getElementById('tumorTypes');
+        const fullTitleModal = document.getElementById('fullTitleModal');
+        const modalTitleContent = document.getElementById('modalTitleContent');
+        const closeModal = document.getElementById('closeModal');
+
+        // Pagination Variables
+        let currentPage = 1;
+        const itemsPerPage = 6;
+        let filteredPublications = [...publications];
+
+        // Initialize Page
+        function init() {
+            // Generate filter options
+            populateYearFilter();
+            populatetumorFilter();
+            
+            // Update stats
+            updateStats();
+            
+            // Display publications
+            displayPublications();
+            
+            // Add event listeners
+            addEventListeners();
+            
+            // Modal event listeners
+            setupModal();
+        }
+
+        // Generate year filter options
+        function populateYearFilter() {
+            const years = [...new Set(publications.map(pub => pub.year))].sort((a, b) => b - a);
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+        }
+
+        // Extract tumor name from note
+        function extracttumorType(note) {
+            if (!note) return 'Unknown Type';
+            
+            // Extract acronym if present
+            const acronymMatch = note.match(/\(([^)]+)\)/);
+            if (acronymMatch) return acronymMatch[1];
+            
+            // Extract first part of the note
+            const firstPart = note.split(' ')[0];
+            return firstPart || 'Unknown Type';
+        }
+
+        // Generate tumor namee filter options
+        function populatetumorFilter() {
+            const tumorTypesSet = new Set();
+            publications.forEach(pub => {
+                const tumorType = extracttumorType(pub.note);
+                tumorTypesSet.add(tumorType);
+            });
+            
+            const tumorTypesArray = [...tumorTypesSet].sort();
+            tumorTypesArray.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                tumorFilter.appendChild(option);
+            });
+        }
+
+        // Display publications
+        function displayPublications() {
+            pubContainer.innerHTML = '';
+            
+            if (filteredPublications.length === 0) {
+                pubContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="inline-block p-4 bg-blue-50 rounded-full mb-4">
+                            <i class="fa fa-search text-primary text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">No publications found</h3>
+                        <p class="text-gray-600 max-w-md mx-auto">Try adjusting your search or filter criteria to find relevant publications.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Calculate items to show on current page
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pubsToShow = filteredPublications.slice(startIndex, endIndex);
+            
+            // Create and add publication cards
+            pubsToShow.forEach(pub => {
+                const tumorType = extracttumorType(pub.note);
+                const card = document.createElement('div');
+                card.className = 'bg-card rounded-xl shadow-sm overflow-hidden pub-card-hover border border-gray-100 h-full flex flex-col card-clickable';
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex items-center text-xs text-gray-500 mb-3 flex-wrap gap-1">
+                            <span class="tag tag-year">${pub.year}</span>
+                            <span class="tag tag-journal">${pub.journal}</span>
+                            <span class="tag tag-tumor">${tumorType}</span>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-3 line-clamp-3 leading-snug">${pub.title || pub.note || 'Research Publication'}</h3>
+                        <div class="text-sm text-gray-600 mb-4 flex items-start">
+                            <i class="fa fa-file-text-o mt-1 mr-2 text-gray-400 flex-shrink-0"></i>
+                            <span class="line-clamp-2">${pub.note || 'Study on rare tumor names and their molecular characteristics'}</span>
+                        </div>
+                    </div>
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500 font-mono">
+                                <span class="mr-3">DOI: ${pub.doi}</span>
+                                ${pub.pmid ? `<span>PMID: ${pub.pmid}</span>` : ''}
+                            </div>
+                            <a href="https://doi.org/${pub.doi}" target="_blank" 
+                               class="text-primary hover:text-secondary text-sm font-medium flex items-center">
+                                View <i class="fa fa-external-link ml-1.5 text-xs"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                // Add click event to show full title in modal
+                card.addEventListener('click', (e) => {
+                    // Check if user clicked the link - if so, let it navigate normally
+                    if (!e.target.closest('a')) {
+                        showFullTitle(pub.title);
+                    }
+                });
+                
+                pubContainer.appendChild(card);
+            });
+            
+            // Update pagination controls
+            updatePagination();
+            
+            // Control pagination button states
+            prevPage.disabled = currentPage === 1;
+            nextPage.disabled = currentPage >= getTotalPages();
+        }
+
+        // Show full title in modal
+        function showFullTitle(title) {
+            modalTitleContent.textContent = title;
+            fullTitleModal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+        }
+
+        // Setup modal functionality
+        function setupModal() {
+            // Close modal when clicking the close button
+            closeModal.addEventListener('click', () => {
+                fullTitleModal.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            });
+            
+            // Close modal when clicking outside the modal content
+            fullTitleModal.addEventListener('click', (e) => {
+                if (e.target === fullTitleModal) {
+                    fullTitleModal.classList.remove('active');
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && fullTitleModal.classList.contains('active')) {
+                    fullTitleModal.classList.remove('active');
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }
+            });
+        }
+
+        // Get total number of pages
+        function getTotalPages() {
+            return Math.ceil(filteredPublications.length / itemsPerPage);
+        }
+
+        // Update pagination controls
+        function updatePagination() {
+            const totalPages = getTotalPages();
+            pageNumbers.innerHTML = '';
+            
+            // Always show first page
+            addPageNumber(1);
+            
+            // Show dots if gap exists
+            if (currentPage > 3) {
+                const dots = document.createElement('span');
+                dots.className = 'px-2 py-1 text-gray-500';
+                dots.textContent = '...';
+                pageNumbers.appendChild(dots);
+            }
+            
+            // Show current page and neighbors
+            const start = Math.max(2, currentPage - 1);
+            const end = Math.min(totalPages - 1, currentPage + 1);
+            
+            for (let i = start; i <= end; i++) {
+                addPageNumber(i);
+            }
+            
+            // Show dots if gap exists at the end
+            if (currentPage < totalPages - 2 && totalPages > 3) {
+                const dots = document.createElement('span');
+                dots.className = 'px-2 py-1 text-gray-500';
+                dots.textContent = '...';
+                pageNumbers.appendChild(dots);
+            }
+            
+            // Always show last page if more than one page
+            if (totalPages > 1) {
+                addPageNumber(totalPages);
+            }
+        }
+
+        // Add page number button
+        function addPageNumber(page) {
+            const button = document.createElement('button');
+            button.className = `page-btn ${page === currentPage ? 'active' : ''}`;
+            button.textContent = page;
+            button.addEventListener('click', () => {
+                currentPage = page;
+                displayPublications();
+            });
+            pageNumbers.appendChild(button);
+        }
+
+        // Update count information
+        function updateCounts() {
+            visibleCount.textContent = filteredPublications.length;
+            totalCount.textContent = publications.length;
+        }
+        
+        // Update stats information
+        function updateStats() {
+            // Update total publications
+            totalCount.textContent = publications.length;
+            
+            // Update year range
+            const years = publications.map(pub => parseInt(pub.year));
+            const minYear = Math.min(...years);
+            const maxYear = Math.max(...years);
+            yearRange.textContent = `${minYear}-${maxYear}`;
+            
+            // Update tumor names count
+            const tumorTypesSet = new Set();
+            publications.forEach(pub => {
+                const tumorType = extracttumorType(pub.note);
+                tumorTypesSet.add(tumorType);
+            });
+            tumorTypes.textContent = tumorTypesSet.size;
+        }
+
+        // Apply sorting
+        function applySorting() {
+            const sortType = sortFilter.value;
+            
+            switch (sortType) {
+                case 'year-asc':
+                    filteredPublications.sort((a, b) => a.year - b.year);
+                    break;
+                case 'year-desc':
+                    filteredPublications.sort((a, b) => b.year - a.year);
+                    break;
+                case 'title-asc':
+                    filteredPublications.sort((a, b) => {
+                        const titleA = (a.title || '').toLowerCase();
+                        const titleB = (b.title || '').toLowerCase();
+                        return titleA.localeCompare(titleB);
+                    });
+                    break;
+                case 'title-desc':
+                    filteredPublications.sort((a, b) => {
+                        const titleA = (a.title || '').toLowerCase();
+                        const titleB = (b.title || '').toLowerCase();
+                        return titleB.localeCompare(titleA);
+                    });
+                    break;
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedYear = yearFilter.value;
+            const selectedtumor = tumorFilter.value;
+            
+            // Reset pagination
+            currentPage = 1;
+            
+            // Filter publications
+            filteredPublications = publications.filter(pub => {
+                // Search term filter
+                const matchesSearch = searchTerm === '' || 
+                                     (pub.doi && pub.doi.toLowerCase().includes(searchTerm)) ||
+                                     (pub.journal && pub.journal.toLowerCase().includes(searchTerm)) ||
+                                     (pub.title && pub.title.toLowerCase().includes(searchTerm)) ||
+                                     (pub.note && pub.note.toLowerCase().includes(searchTerm)) ||
+                                     (pub.pmid && pub.pmid.includes(searchTerm));
+                
+                // Year filter
+                const matchesYear = selectedYear === '' || pub.year === selectedYear;
+                
+                // tumor type filter
+                const tumorType = extracttumorType(pub.note);
+                const matchestumor = selectedtumor === '' || tumorType === selectedtumor;
+                
+                return matchesSearch && matchesYear && matchestumor;
+            });
+            
+            // Apply sorting
+            applySorting();
+            
+            // Display filtered results
+            displayPublications();
+            
+            // Update counts
+            updateCounts();
+        }
+
+        // Reset all filters
+        function resetAllFilters() {
+            searchInput.value = '';
+            yearFilter.value = '';
+            tumorFilter.value = '';
+            sortFilter.value = 'year-desc';
+            currentPage = 1;
+            
+            // Reset filtered results
+            filteredPublications = [...publications];
+            applySorting();
+            displayPublications();
+            updateCounts();
+        }
+
+        // Add event listeners
+        function addEventListeners() {
+            // Search input
+            searchInput.addEventListener('input', applyFilters);
+            
+            // Filter changes
+            yearFilter.addEventListener('change', applyFilters);
+            tumorFilter.addEventListener('change', applyFilters);
+            sortFilter.addEventListener('change', applyFilters);
+            
+            // Reset filters
+            resetFilters.addEventListener('click', resetAllFilters);
+            
+            // Pagination buttons
+            prevPage.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayPublications();
+                }
+            });
+            
+            nextPage.addEventListener('click', () => {
+                if (currentPage < getTotalPages()) {
+                    currentPage++;
+                    displayPublications();
+                }
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
